@@ -1,116 +1,119 @@
-# Helix /verify 技能设计
+# Helix /verify Skill Design
 
-> **版本**: v0.1
-> **状态**: 详细设计
-
----
-
-## 1. 技能概述
-
-| 属性 | 值 |
-|------|-----|
-| 名称 | `/verify` |
-| 分类 | Execution (执行引擎) |
-| 依赖 | `/spec`, `/build` |
-| 核心功能 | 自动化验证闭环 |
+> **Version**: v0.1
+> **Status**: Detailed Design
 
 ---
 
-## 2. 工作流程
+## 1. Skill Overview
+
+| Attribute | Value |
+|-----------|-------|
+| Name | `/verify` |
+| Category | Execution (Execution Engine) |
+| Dependencies | `/spec`, `/build` |
+| Core Function | Automated verification loop |
+
+---
+
+## 2. Workflow
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                       /verify 工作流                         │
+│                       /verify Workflow                      │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  输入: 代码目录 或 测试命令                                   │
+│  Input: Code directory or test command                      │
 │       │                                                     │
 │       ▼                                                     │
 │  ┌─────────────┐                                           │
-│  │ 环境检测    │ ◄── 检测依赖、语言、框架                    │
+│  │ Environment │ ◄── Detect dependencies, language,        │
+│  │ Detection   │     framework                              │
 │  └─────────────┘                                           │
 │       │                                                     │
 │       ▼                                                     │
 │  ┌─────────────┐                                           │
-│  │ 静态检查    │ ◄── lint, type check, format              │
+│  │ Static      │ ◄── lint, type check, format              │
+│  │ Checks      │                                           │
 │  └─────────────┘                                           │
 │       │                                                     │
 │       ▼                                                     │
 │  ┌─────────────┐                                           │
-│  │ 单元测试    │ ◄── 运行测试 suite                        │
+│  │ Unit Tests  │ ◄── Run test suite                        │
 │  └─────────────┘                                           │
 │       │                                                     │
 │       ▼                                                     │
 │  ┌─────────────┐                                           │
-│  │ 验收测试    │ ◄── 验证 Spec 中的 AC                     │
+│  │ Acceptance  │ ◄── Verify Spec acceptance criteria       │
+│  │ Tests       │                                           │
 │  └─────────────┘                                           │
 │       │                                                     │
 │       ▼                                                     │
-│  输出: 验证报告                                             │
+│  Output: Verification Report                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. 验证层级
+## 3. Verification Layers
 
-### 3.1 L1: 静态检查
+### 3.1 L1: Static Checks
 
-| 检查项 | 工具 | 说明 |
-|--------|------|------|
-| 代码格式 | black, ruff | 格式规范 |
-| 类型检查 | mypy | 类型安全 |
-| Lint | ruff, flake8 | 代码质量 |
-| 安全扫描 | bandit | 安全漏洞 |
+| Check | Tool | Description |
+|-------|------|-------------|
+| Code Format | black, ruff | Format standards |
+| Type Check | mypy | Type safety |
+| Lint | ruff, flake8 | Code quality |
+| Security Scan | bandit | Security vulnerabilities |
 
-### 3.2 L2: 单元测试
+### 3.2 L2: Unit Tests
 
-| 检查项 | 工具 | 说明 |
-|--------|------|------|
-| 测试运行 | pytest | 执行测试 |
-| 覆盖率 | pytest-cov | 覆盖率检查 |
-| 快速失败 | - | 任何测试失败则停止 |
+| Check | Tool | Description |
+|-------|------|-------------|
+| Test Run | pytest | Execute tests |
+| Coverage | pytest-cov | Coverage check |
+| Fast Fail | - | Stop on any test failure |
 
-### 3.3 L3: 验收测试
+### 3.3 L3: Acceptance Tests
 
-| 检查项 | 说明 |
-|--------|------|
-| Spec AC 验证 | 逐条验证验收标准 |
-| 手动测试点 | 标记需要人工测试的点 |
+| Check | Description |
+|-------|-------------|
+| Spec AC Verification | Verify acceptance criteria line by line |
+| Manual Test Points | Mark points requiring manual testing |
 
 ---
 
-## 4. CLI 接口
+## 4. CLI Interface
 
 ```bash
-# 验证当前目录
+# Verify current directory
 helix verify
 
-# 验证指定目录
+# Verify specific directory
 helix verify ./src
 
-# 仅静态检查
+# Static checks only
 helix verify --level static
 
-# 仅运行测试
+# Run tests only
 helix verify --level test
 
-# 完整验证
+# Full verification
 helix verify --level full
 
-# 验收测试
+# Acceptance tests
 helix verify --level acceptance
 
-# 生成报告
+# Generate report
 helix verify --report json
 ```
 
 ---
 
-## 5. 输出格式
+## 5. Output Format
 
-### JSON 报告
+### JSON Report
 
 ```json
 {
@@ -131,37 +134,37 @@ helix verify --report json
       "status": "partial",
       "ac_met": 3,
       "ac_total": 5,
-      "manual_tests": ["测试支付流程"]
+      "manual_tests": ["Test payment flow"]
     }
   },
   "overall": "pass"
 }
 ```
 
-### 人类可读输出
+### Human-Readable Output
 
 ```
-╭───────────────────────── 验证报告 ──────────────────────────╮
-│ 静态检查    ✓ PASS (12s)                                     │
-│ 单元测试    ✓ PASS (85% 覆盖率)                              │
-│ 验收测试    ⚠ PARTIAL (3/5 通过)                            │
-├──────────────────────────────────────────────────────────────┤
-│ 总体状态: ⚠ 需要人工验收                                    │
-│                                                              │
-│ 待人工测试:                                                  │
-│ - [ ] 支付流程是否正常                                       │
-│ - [ ] 邮箱验证码发送                                         │
-╰──────────────────────────────────────────────────────────────╯
+╭───────────────────────── Verification Report ──────────────────────────╮
+│ Static Checks    ✓ PASS (12s)                                          │
+│ Unit Tests       ✓ PASS (85% coverage)                                 │
+│ Acceptance Tests ⚠ PARTIAL (3/5 passed)                                │
+├──────────────────────────────────────────────────────────────────────────┤
+│ Overall Status: ⚠ Manual acceptance required                           │
+│                                                                  │
+│ Manual Tests Pending:                                                │
+│ - [ ] Is payment flow working correctly                            │
+│ - [ ] Email verification code sending                              │
+╰──────────────────────────────────────────────────────────────────────────╯
 ```
 
 ---
 
-## 6. 待讨论
+## 6. Open Discussion
 
-1. [ ] 验证失败是否阻止后续？
-2. [ ] 如何集成到 CI/CD？
-3. [ ] 是否需要"只验证 Spec AC"模式？
+1. [ ] Should verification failure block subsequent steps?
+2. [ ] How to integrate with CI/CD?
+3. [ ] Do we need a "verify Spec AC only" mode?
 
 ---
 
-开始实现还是先讨论其他？
+Start implementation or discuss other topics first?

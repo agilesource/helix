@@ -1,238 +1,243 @@
-# Helix - AI 时代软件工程方法论新范式
+# Helix — AI Era Software Engineering Methodology New Paradigm
 
-> **版本**: v0.1 (设计讨论备忘)
-> **日期**: 2026-04-09
-> **状态**: 概念设计阶段
+> **Version**: v0.1 (Design Discussion Memo)
+> **Date**: 2026-04-09
+> **Status**: Concept Design Phase
 
 ---
 
-## 一、核心理念
+## 1. Core Philosophy
 
-### 命名由来
+### Naming Origin
 
-**Helix** — DNA 双螺旋结构
+**Helix** — DNA Double Helix Structure
 
 ```
-    人类 (Human)          AI Agent
+    Human            AI Agent
        ●─────────────●
       ╱ ╲           ╱ ╲
      ╱   ╲─────────╱   ╲
     ●─────╲       ╱─────●
           ╲─────╱
-         协同进化
+         Co-evolution
 ```
 
-**核心隐喻**：人类智慧与 AI 能力的协同进化，如同 DNA 双螺旋般相互缠绕、彼此增强。
+**Core Metaphor**: Human intelligence and AI capabilities co-evolving, like a DNA double helix — intertwining and mutually enhancing.
 
-### 核心原则
+### Core Principles
 
-1. **代码成本趋零时，架构清晰度成为唯一分水岭**
-2. **人类掌舵，AI 执行** — 驾驭工程的核心
-3. **方法论混合体** — 不盲从单一方法，按需组合
-4. **自动化验证闭环** — 每一行 AI 产出都经过双重验证
-
----
-
-## 二、方法论基础
-
-### 2.1 四大方法论融合
-
-| 方法论 | 核心价值 | Helix 映射 |
-|--------|----------|------------|
-| 敏捷开发 | 快速响应变化，短迭代交付 | `/spec` 规格驱动，快速迭代 |
-| DevOps | 自动化全流程，效率驱动 | `/verify` 验证流水线 |
-| 平台工程 | 封装能力，降低认知负荷 | 技能即服务，标准化封装 |
-| 驾驭工程 | 人类掌舵，AI 执行 | 人类定义 Spec + 约束，AI 执行 |
-
-### 2.2 驾驭工程的核心转变
-
-| 传统角色 | AI 时代角色 |
-|----------|-------------|
-| 代码生产者 | 架构师/驾驭者 |
-| 写代码 | 写规格说明书 + 定义架构约束 + 构建验证闭环 |
+1. **When code cost approaches zero, architectural clarity becomes the sole differentiator**
+2. **Human at the helm, AI executes** — the core of Harness Engineering
+3. **Methodology hybrid** — don't blindly follow a single method, combine as needed
+4. **Automated verification loop** — every AI output undergoes dual verification
 
 ---
 
-## 三、系统架构
+## 2. Methodology Foundation
 
-### 3.1 四层架构
+### 2.1 Four Methodology Integration
+
+| Methodology | Core Value | Helix Mapping |
+|-------------|------------|---------------|
+| Agile Development | Rapid response to change, short iterative delivery | `/spec` Spec-driven, rapid iteration |
+| DevOps | Full process automation, efficiency-driven | `/verify` Verification pipeline |
+| Platform Engineering | Encapsulate capabilities, reduce cognitive load | Skills as services, standardized encapsulation |
+| Harness Engineering | Human steers, AI executes | Human defines Spec + constraints, AI executes |
+
+### 2.2 Core Transformation of Harness Engineering
+
+| Traditional Role | AI Era Role |
+|------------------|-------------|
+| Code Producer | Architect/Driver |
+| Write code | Write specifications + define architectural constraints + build verification loops |
+
+---
+
+## 3. System Architecture
+
+### 3.1 Four-Layer Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           第四层：元方法论层                                 │
+│                           Layer 4: Meta-Methodology                         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │ 敏捷原则    │  │ DevOps 理念 │  │ 平台工程    │  │ 驾驭工程    │       │
-│  │ (流程层)    │  │ (交付层)    │  │ (能力层)    │  │ (角色层)    │       │
+│  │ Agile       │  │ DevOps      │  │ Platform    │  │ Harness     │       │
+│  │ Principles  │  │ Philosophy  │  │ Engineering │  │ Engineering │       │
+│  │ (Process)   │  │ (Delivery)  │  │ (Capability)│  │ (Role)      │       │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                           第三层：执行引擎层                                 │
+│                           Layer 3: Execution Engine                         │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
 │  │ /spec       │  │ /build      │  │ /verify     │  │ /ship       │       │
-│  │ 规格驱动    │  │ 智能构建    │  │ 自动化验证  │  │ 交付发布    │       │
+│  │ Spec-driven │  │ Intelligent │  │ Automated   │  │ Delivery &  │       │
+│  │             │  │ Build       │  │ Verification│  │ Release     │       │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                           第二层：质量保障层                                 │
+│                           Layer 2: Quality Assurance                       │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
 │  │ /review     │  │ /test       │  │ /audit      │  │ /gate       │       │
-│  │ 代码审查    │  │ 智能测试    │  │ 安全审计    │  │ 质量门禁    │       │
+│  │ Code Review │  │ Intelligent │  │ Security    │  │ Quality     │       │
+│  │             │  │ Testing     │  │ Audit       │  │ Gate        │       │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                           第一层：基础设施层                                 │
+│                           Layer 1: Infrastructure                           │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
 │  │ /browse     │  │ /design     │  │ /learn      │  │ /checkpoint │       │
-│  │ 浏览器控制  │  │ 设计生成    │  │ 持续学习    │  │ 状态保存    │       │
+│  │ Browser     │  │ Design      │  │ Continuous  │  │ State       │       │
+│  │ Control     │  │ Generation  │  │ Learning    │  │ Persistence │       │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘       │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.2 与 Claude Code 整合
+### 3.2 Claude Code Integration
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                     Helix (主控制器)                       │
+│                     Helix (Main Controller)                │
 │  ┌──────────────────────────────────────────────────────┐ │
-│  │  意图识别 → 方法论选择 → 技能路由 → 执行 → 验证      │ │
+│  │  Intent Recognition → Methodology Selection          │ │
+│  │  → Skill Routing → Execution → Verification          │ │
 │  └──────────────────────────────────────────────────────┘ │
 │           ↓              ↓            ↓            ↓      │
 │  ┌────────────┐   ┌────────────┐ ┌────────────┐ ┌───────┐ │
 │  │ Claude Code│   │ MCP Servers│ │ Skills     │ │Tools  │ │
-│  │ (推理)     │   │ (扩展)     │ │ (复用)     │ │(执行) │ │
+│  │ (Reasoning)│   │ (Extension)│ │ (Reuse)    │ │(Exec) │ │
 │  └────────────┘   └────────────┘ └────────────┘ └───────┘ │
 └────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 四、技能详细设计
+## 4. Detailed Skill Design
 
-### 4.1 第一层：基础设施层（已有能力强化）
+### 4.1 Layer 1: Infrastructure (Existing Capabilities Enhanced)
 
-| 技能 | 现状 | 升级方向 |
-|------|------|----------|
-| `/browse` | GStack 现有 | 增强端到端测试、视觉回归 |
-| `/design` | GStack 现有 | Spec 驱动的设计生成 |
-| `/learn` | GStack 现有 | 项目知识图谱 + 跨项目学习 |
-| `/checkpoint` | GStack 现有 | 跨会话状态延续 + 决策追溯 |
+| Skill | Current State | Upgrade Direction |
+|-------|---------------|-------------------|
+| `/browse` | GStack existing | Enhance E2E testing, visual regression |
+| `/design` | GStack existing | Spec-driven design generation |
+| `/learn` | GStack existing | Project knowledge graph + cross-project learning |
+| `/checkpoint` | GStack existing | Cross-session state continuation + decision traceability |
 
-### 4.2 第二层：质量保障层
+### 4.2 Layer 2: Quality Assurance
 
-| 技能 | 功能 | 关键特性 |
-|------|------|----------|
-| `/review` | 代码审查 | 规格对照审查、架构约束检查 |
-| `/test` | 智能测试 | Spec 驱动的测试生成、边界用例 |
-| `/audit` | 安全审计 | 依赖审计、架构审计、安全扫描 |
-| `/gate` | 质量门禁 | 多维度检查（可选） |
+| Skill | Function | Key Features |
+|-------|----------|--------------|
+| `/review` | Code Review | Spec-aligned review, architectural constraint checking |
+| `/test` | Intelligent Testing | Spec-driven test generation, edge cases |
+| `/audit` | Security Audit | Dependency audit, architectural audit, security scanning |
+| `/gate` | Quality Gate | Multi-dimensional checks (optional) |
 
-### 4.3 第三层：执行引擎层
+### 4.3 Layer 3: Execution Engine
 
-| 技能 | 功能 | 关键特性 |
-|------|------|----------|
-| `/spec` | 规格驱动 | 需求 → 结构化规格说明书 |
-| `/build` | 智能构建 | Spec → 代码骨架 → 填充实现 |
-| `/verify` | 自动化验证 | 单元/集成/回归自动化闭环 |
-| `/ship` | 发布交付 | 自动化发布流程 |
+| Skill | Function | Key Features |
+|-------|----------|--------------|
+| `/spec` | Spec-driven | Requirement → Structured specification |
+| `/build` | Intelligent Build | Spec → Code skeleton → Implementation |
+| `/verify` | Automated Verification | Unit/Integration/Regression automated loop |
+| `/ship` | Release & Delivery | Automated release process |
 
-### 4.4 第四层：元方法论调度中心
+### 4.4 Layer 4: Meta-Methodology Scheduler
 
 ```python
 class HelixOrchestrator:
-    """根据上下文自动选择合适的方法论组合"""
+    """Automatically select appropriate methodology combination based on context"""
 
     def dispatch(self, intent: str, context: dict) -> Skill:
-        # 意图识别 + 上下文感知 = 技能路由
-        if intent.contains("需求") or intent.contains("feature"):
-            return self.select("spec")  # 敏捷原则
-        elif intent.contains("部署") or intent.contains("发布"):
-            return self.select("ship")  # DevOps 理念
-        elif intent.contains("封装") or intent.contains("平台"):
-            return self.select("platform")  # 平台工程
-        elif intent.contains("架构") or intent.contains("约束"):
-            return self.select("constrain")  # 驾驭工程
+        # Intent recognition + context-aware = skill routing
+        if intent.contains("requirement") or intent.contains("feature"):
+            return self.select("spec")  # Agile principles
+        elif intent.contains("deploy") or intent.contains("release"):
+            return self.select("ship")  # DevOps philosophy
+        elif intent.contains("encapsulate") or intent.contains("platform"):
+            return self.select("platform")  # Platform Engineering
+        elif intent.contains("architecture") or intent.contains("constraint"):
+            return self.select("constrain")  # Harness Engineering
 ```
 
 ---
 
-## 五、项目结构
+## 5. Project Structure
 
 ```
 helix/
-├── helix-core/           # 核心调度引擎
-│   ├── orchestrator.py   # 方法论路由
-│   ├── intent_parser.py  # 意图识别
-│   ├── context_manager.py # 上下文管理
-│   └── config.py         # 配置管理
-├── skills/               # 技能层
-│   ├── spec/            # 规格驱动 (新设计)
-│   ├── build/           # 智能构建 (新设计)
-│   ├── verify/          # 自动化验证 (新设计)
-│   ├── review/          # 代码审查 (GStack 增强)
-│   ├── test/            # 智能测试 (新设计)
-│   ├── audit/           # 安全审计 (CSO 增强)
-│   ├── gate/            # 质量门禁 (新设计)
-│   ├── ship/            # 发布交付 (GStack 增强)
-│   ├── browse/          # 浏览器控制 (现有)
-│   ├── design/          # 设计生成 (现有)
-│   ├── learn/           # 持续学习 (现有)
-│   └── checkpoint/      # 状态保存 (现有)
-├── integration/          # 集成层
-│   ├── claude_code.py   # Claude Code 适配器
-│   └── mcp.py           # MCP 协议适配
-├── knowledge/            # 知识库
-│   ├── patterns/        # 模式库
-│   └── templates/       # 规格模板
-└── docs/                # 文档
-    ├── method.md        # 方法论文档
-    └── skills/          # 技能文档
+├── helix-core/           # Core orchestration engine
+│   ├── orchestrator.py   # Methodology routing
+│   ├── intent_parser.py  # Intent recognition
+│   ├── context_manager.py # Context management
+│   └── config.py         # Configuration management
+├── skills/               # Skill layer
+│   ├── spec/            # Spec-driven (new design)
+│   ├── build/           # Intelligent build (new design)
+│   ├── verify/          # Automated verification (new design)
+│   ├── review/          # Code review (GStack enhanced)
+│   ├── test/            # Intelligent testing (new design)
+│   ├── audit/           # Security audit (CSO enhanced)
+│   ├── gate/            # Quality gate (new design)
+│   ├── ship/            # Release & delivery (GStack enhanced)
+│   ├── browse/          # Browser control (existing)
+│   ├── design/          # Design generation (existing)
+│   ├── learn/           # Continuous learning (existing)
+│   └── checkpoint/      # State persistence (existing)
+├── integration/          # Integration layer
+│   ├── claude_code.py   # Claude Code adapter
+│   └── mcp.py           # MCP protocol adapter
+├── knowledge/            # Knowledge base
+│   ├── patterns/        # Pattern library
+│   └── templates/       # Specification templates
+└── docs/                # Documentation
+    ├── method.md        # Methodology documentation
+    └── skills/          # Skill documentation
 ```
 
 ---
 
-## 六、迭代路线图
+## 6. Iteration Roadmap
 
-### Phase 1: 基础设施 (Week 1-2)
-- 现有 GStack 技能整合
-- 基础调度框架搭建
+### Phase 1: Infrastructure (Week 1-2)
+- Integrate existing GStack skills
+- Build basic orchestration framework
 
-### Phase 2: 核心技能 (Week 3-6)
-- `/spec` 规格驱动技能
-- `/build` 智能构建技能
-- `/verify` 验证闭环
+### Phase 2: Core Skills (Week 3-6)
+- `/spec` Spec-driven skill
+- `/build` Intelligent build skill
+- `/verify` Verification loop
 
-### Phase 3: 质量保障 (Week 7-10)
-- `/test` 智能测试
-- `/review` 增强
-- `/audit` 集成
-- `/gate` 门禁
+### Phase 3: Quality Assurance (Week 7-10)
+- `/test` Intelligent testing
+- `/review` Enhancement
+- `/audit` Integration
+- `/gate` Gatekeeper
 
-### Phase 4: 整合优化 (Week 11-12)
-- 端到端测试
-- 性能优化
-- 文档完善
+### Phase 4: Integration & Optimization (Week 11-12)
+- End-to-end testing
+- Performance optimization
+- Documentation improvement
 
 ---
 
-## 七、参考资源
+## 7. Reference Resources
 
-- **方法论文献**: `/Users/liantian/Library/Mobile Documents/iCloud~md~obsidian/Documents/Dev/Method/software_engineering_evolution_ai_era.md`
+- **Methodology Documents**: `/Users/liantian/Library/Mobile Documents/iCloud~md~obsidian/Documents/Dev/Method/software_engineering_evolution_ai_era.md`
 - **GStack Fusion**: `/Users/liantian/workspace/osprojects/gstack-fusion`
 - **Superpowers**: https://github.com/obra/superpowers
 - **Google Engineering**: GStack ETHOS.md
 
 ---
 
-## 八、开放问题
+## 8. Open Questions
 
-1. [ ] 技能命名是否统一使用 `/` 前缀？
-2. [ ] 是否需要支持自定义技能插件？
-3. [ ] 如何处理与现有 Claude Code Skills 的关系？
-4. [ ] 国际化（中英文）支持优先级？
-5. [ ] 是否需要云端协作能力？
-
----
-
-**下次讨论议题**: `/spec` 技能的详细设计（需求 → 规格说明书的转化）
+1. [ ] Should skill names uniformly use the `/` prefix?
+2. [ ] Do we need to support custom skill plugins?
+3. [ ] How to handle relationships with existing Claude Code Skills?
+4. [ ] Internationalization (English/Chinese) support priority?
+5. [ ] Do we need cloud collaboration capabilities?
 
 ---
 
-*设计讨论参与人员：Peter + DeepSeek + Claude (Helix)*
+**Next Discussion Topic**: Detailed design of `/spec` skill (requirement → specification transformation)
+
+---
+
+*Design discussion participants: Peter + DeepSeek + Claude (Helix)*
 *2026-04-09*

@@ -1,342 +1,346 @@
-# Helix /spec 技能设计
+# Helix /spec Skill Design
 
-> **版本**: v0.1
-> **状态**: 详细设计
-> **技能状态**: DRAFT
-
----
-
-## 1. 技能概述
-
-### 1.1 基本信息
-
-| 属性 | 值 |
-|------|-----|
-| 名称 | `/spec` |
-| 命令 | `helix spec "<需求描述>"` |
-| 分类 | Execution (执行引擎) |
-| 状态 | DRAFT (设计中) |
-| 依赖 | 无 |
-
-### 1.2 核心职责
-
-将用户的自然语言需求描述转化为结构化的规格说明书（Spec），为后续的 `/build`、`/verify` 等技能提供清晰的输入。
-
-### 1.3 输入输出
-
-```
-输入: "我想做一个用户登录功能"
-输出: 结构化规格说明书 (Markdown 格式)
-```
+> **Version**: v0.1
+> **Status**: Detailed Design
+> **Skill Status**: DRAFT
 
 ---
 
-## 2. 工作流程
+## 1. Skill Overview
+
+### 1.1 Basic Information
+
+| Attribute | Value |
+|-----------|-------|
+| Name | `/spec` |
+| Command | `helix spec "<requirement description>"` |
+| Category | Execution (Execution Engine) |
+| Status | DRAFT (In Design) |
+| Dependencies | None |
+
+### 1.2 Core Responsibility
+
+Transform user's natural language requirement descriptions into structured specifications (Spec), providing clear input for subsequent skills like `/build` and `/verify`.
+
+### 1.3 Input/Output
+
+```
+Input: "I want to build a user login feature"
+Output: Structured specification (Markdown format)
+```
+
+---
+
+## 2. Workflow
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              /spec 工作流                                    │
+│                              /spec Workflow                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  用户输入                                                                     │
-│  "我想做一个用户登录功能"                                                    │
+│  User Input                                                                   │
+│  "I want to build a user login feature"                                      │
 │       │                                                                     │
 │       ▼                                                                     │
 │  ┌─────────────┐                                                             │
-│  │ 意图解析    │ ◄── 理解用户想要什么类型的特性                              │
+│  │ Intent Parsing│ ◄── Understand what type of feature user wants          │
 │  └─────────────┘                                                             │
 │       │                                                                     │
 │       ▼                                                                     │
 │  ┌─────────────┐                                                             │
-│  │ 需求澄清    │ ◄── Socratic 提问，模糊处反问用户                          │
-│  │ (可选)      │     如果需求足够清晰，跳过此步                              │
+│  │ Requirement │ ◄── Socratic questioning, clarify ambiguous parts         │
+│  │ Clarification│    If requirement is clear enough, skip this step        │
+│  │ (Optional)  │                                                             │
 │  └─────────────┘                                                             │
 │       │                                                                     │
 │       ▼                                                                     │
 │  ┌─────────────┐                                                             │
-│  │ 模板选择    │ ◄── 根据特性类型选择合适模板                                │
+│  │ Template    │ ◄── Select appropriate template based on feature type    │
+│  │ Selection   │                                                             │
 │  └─────────────┘                                                             │
 │       │                                                                     │
 │       ▼                                                                     │
 │  ┌─────────────┐                                                             │
-│  │ 规格生成    │ ◄── 填充模板，生成结构化 Spec                               │
+│  │ Spec        │ ◄── Fill template, generate structured Spec               │
+│  │ Generation  │                                                             │
 │  └─────────────┘                                                             │
 │       │                                                                     │
 │       ▼                                                                     │
 │  ┌─────────────┐                                                             │
-│  │ 人类确认    │ ◄── 展示 Spec，用户可修改或确认                            │
+│  │ Human       │ ◄── Display Spec, user can modify or confirm              │
+│  │ Confirmation│                                                             │
 │  └─────────────┘                                                             │
 │       │                                                                     │
 │       ▼                                                                     │
-│  规格说明书输出                                                               │
+│  Specification Output                                                         │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. 意图解析
+## 3. Intent Parsing
 
-### 3.1 需求分类
+### 3.1 Requirement Classification
 
-用户输入的需求可以分为以下类型：
+User input requirements can be classified into the following types:
 
-| 类型 | 关键词 | 示例 |
-|------|--------|------|
-| CRUD | 创建, 添加, 删除, 修改, 管理 | "做一个用户管理系统" |
-| API | 接口, 服务, REST, GraphQL | "做一个用户 API" |
-| 算法 | 计算, 排序, 搜索, 优化 | "实现一个推荐算法" |
-| 集成 | 对接, 集成, 第三方 | "集成 Stripe 支付" |
-| 页面 | 页面, 组件, UI, 前端 | "做一个登录页面" |
-| 脚本 | 脚本, 工具, 命令行 | "做一个数据导入脚本" |
-| 基础设施 | 部署, CI/CD, 配置 | "配置 CI/CD" |
+| Type | Keywords | Example |
+|------|----------|---------|
+| CRUD | create, add, delete, modify, manage | "Build a user management system" |
+| API | API, service, REST, GraphQL | "Build a user API" |
+| Algorithm | calculate, sort, search, optimize | "Implement a recommendation algorithm" |
+| Integration | integrate, third-party | "Integrate Stripe payment" |
+| UI | page, component, UI, frontend | "Build a login page" |
+| Script | script, tool, CLI | "Build a data import script" |
+| Infrastructure | deploy, CI/CD, config | "Configure CI/CD" |
 
-### 3.2 实体提取
+### 3.2 Entity Extraction
 
-从需求中提取关键实体：
+Extract key entities from requirements:
 
 ```python
 @dataclass
 class ExtractedEntities:
-    domain: str = ""        # 领域：用户、订单、支付...
-    action: str = ""        # 动作：登录、查询、创建...
-    entities: List[str] = [] # 涉及的实体：用户名、密码、验证码...
-    integrations: List[str] = [] # 第三方集成
-    constraints: List[str] = []  # 约束条件
+    domain: str = ""        # Domain: user, order, payment...
+    action: str = ""        # Action: login, query, create...
+    entities: List[str] = [] # Entities involved: username, password, verification code...
+    integrations: List[str] = [] # Third-party integrations
+    constraints: List[str] = []  # Constraints
 ```
 
 ---
 
-## 4. Socratic 提问机制
+## 4. Socratic Questioning Mechanism
 
-### 4.1 触发条件
+### 4.1 Trigger Conditions
 
-当以下任一条件满足时，触发 Socratic 提问：
+Trigger Socratic questioning when any of the following conditions are met:
 
-1. **领域不明确** — "做一个管理系统" → "什么类型的管理系统？"
-2. **动作不明确** → "做一个功能" → "具体是什么功能？"
-3. **用户不明确** → "给用户使用" → "目标用户是谁？"
-4. **价值不明确** → "做一个登录" → "登录后用户能做什么？"
+1. **Domain unclear** — "Build a management system" → "What type of management system?"
+2. **Action unclear** → "Build a feature" → "What exactly is the feature?"
+3. **User unclear** → "For users" → "Who is the target user?"
+4. **Value unclear** → "Build a login" → "What can users do after logging in?"
 
-### 4.2 提问策略
+### 4.2 Questioning Strategy
 
 ```
-需求清晰度 = f(领域明确, 动作明确, 用户明确, 价值明确)
+Requirement Clarity = f(domain_clear, action_clear, user_clear, value_clear)
 
-if 需求清晰度 >= 0.8:
-    直接进入模板填充
-elif 需求清晰度 >= 0.5:
-    选择性提问（最多 3 个关键问题）
+if Requirement Clarity >= 0.8:
+    Directly proceed to template filling
+elif Requirement Clarity >= 0.5:
+    Selective questioning (max 3 key questions)
 else:
-    引导式提问（直到清晰度 >= 0.7）
+    Guided questioning (until clarity >= 0.7)
 ```
 
-### 4.3 预设问题库
+### 4.3 Question Library
 
-| 缺失信息 | 提问模板 |
-|----------|----------|
-| 领域 | "请问这个功能属于什么业务领域？" |
-| 用户 | "请描述一下目标用户是谁？" |
-| 价值 | "这个功能为用户解决什么问题？" |
-| 规模 | "预计有多少用户会使用这个功能？" |
-| 集成 | "需要与哪些第三方系统对接？" |
-| 平台 | "需要支持哪些平台（Web/iOS/Android）？" |
-| 验收 | "你如何判断这个功能做完了？" |
+| Missing Info | Question Template |
+|--------------|-------------------|
+| Domain | "What business domain does this feature belong to?" |
+| User | "Can you describe the target user?" |
+| Value | "What problem does this feature solve for users?" |
+| Scale | "How many users are expected to use this feature?" |
+| Integration | "Which third-party systems need integration?" |
+| Platform | "Which platforms need to be supported (Web/iOS/Android)?" |
+| Acceptance | "How do you determine this feature is complete?" |
 
 ---
 
-## 5. 模板系统
+## 5. Template System
 
-### 5.1 模板类型
+### 5.1 Template Types
 
-| 模板名 | 适用类型 | 核心章节 |
-|--------|----------|----------|
-| `crud` | CRUD 操作 | 数据模型, API 设计, 业务逻辑 |
-| `api` | API 服务 | 接口定义, 认证, 错误处理 |
-| `algorithm` | 算法实现 | 算法描述, 复杂度分析, 测试用例 |
-| `integration` | 第三方集成 | 集成方案, 错误处理, 回退策略 |
-| `ui` | 页面/组件 | 交互设计, 状态定义, 响应式 |
-| `script` | 脚本工具 | 使用场景, 参数定义, 输出格式 |
-| `infrastructure` | 基础设施 | 环境需求, 配置, 部署 |
+| Template Name | Applicable Type | Core Sections |
+|---------------|-----------------|---------------|
+| `crud` | CRUD Operations | Data Model, API Design, Business Logic |
+| `api` | API Service | Interface Definition, Authentication, Error Handling |
+| `algorithm` | Algorithm Implementation | Algorithm Description, Complexity Analysis, Test Cases |
+| `integration` | Third-party Integration | Integration Scheme, Error Handling, Fallback Strategy |
+| `ui` | Page/Component | Interaction Design, State Definition, Responsive |
+| `script` | Script Tool | Usage Scenario, Parameter Definition, Output Format |
+| `infrastructure` | Infrastructure | Environment Requirements, Configuration, Deployment |
 
-### 5.2 模板结构
+### 5.2 Template Structure
 
 ```markdown
-# {功能名称}
+# {Feature Name}
 
-## 1. 功能概述
-{一句话说清楚做什么}
+## 1. Feature Overview
+{One sentence explaining what this does}
 
-## 2. 用户故事
-作为 [角色]，我希望 [功能]，以便 [价值]
+## 2. User Story
+As a [role], I want [feature], so that [value]
 
-## 3. 功能需求
+## 3. Functional Requirements
 
-### 3.1 核心功能
-| # | 功能点 | 优先级 | 验收标准 |
-|---|--------|--------|----------|
-| 1 |        | P0    |          |
+### 3.1 Core Features
+| # | Feature | Priority | Acceptance Criteria |
+|---|---------|----------|---------------------|
+| 1 |         | P0       |                    |
 
-### 3.2 边缘功能
-| # | 功能点 | 优先级 | 验收标准 |
-|---|--------|--------|----------|
-| 1 |        | P1    |          |
+### 3.2 Edge Features
+| # | Feature | Priority | Acceptance Criteria |
+|---|---------|----------|---------------------|
+| 1 |         | P1       |                    |
 
-## 4. 非功能需求
-- 性能：
-- 安全：
-- 兼容性：
+## 4. Non-Functional Requirements
+- Performance:
+- Security:
+- Compatibility:
 
-## 5. 接口设计
+## 5. Interface Design
 ### 5.1 API
-| 方法 | 路径 | 输入 | 输出 |
-|------|------|------|------|
-|      |      |      |      |
+| Method | Path | Input | Output |
+|--------|------|-------|--------|
+|        |      |       |        |
 
-### 5.2 数据模型
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-|      |      |      |      |
+### 5.2 Data Model
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+|        |      |          |             |
 
-## 6. 验收标准 (AC)
-- [ ] 场景1：...
-- [ ] 场景2：...
+## 5. Acceptance Criteria (AC)
+- [ ] Scenario 1: ...
+- [ ] Scenario 2: ...
 
-## 7. 边界条件
-- 异常情况1：...
-- 异常情况2：...
+## 6. Edge Cases
+- Edge case 1: ...
+- Edge case 2: ...
 
-## 8. 技术约束
-- 依赖：...
-- 限制：...
+## 7. Technical Constraints
+- Dependencies: ...
+- Limitations: ...
 
-## 9. 风险与依赖
-- 风险：...
-- 依赖：...
+## 8. Risks and Dependencies
+- Risks: ...
+- Dependencies: ...
 ```
 
 ---
 
-## 6. 人类确认
+## 6. Human Confirmation
 
-### 6.1 确认节点
+### 6.1 Confirmation Nodes
 
 ```
-用户输入 → 意图解析 ─┐
-                    ▼
-              需求澄清 (可选)
-                    │
-                    ▼
-              选择模板 ─┐
-                    ▼
-              填充 Spec
-                    │
-                    ▼
-              展示给用户 ───────► 确认 / 修改 / 取消
-                    │
-                    ▼
-              完成
+User Input → Intent Parsing ─┐
+                            ▼
+                   Requirement Clarification (Optional)
+                            │
+                            ▼
+                   Template Selection ─┐
+                            ▼
+                   Fill Spec
+                            │
+                            ▼
+                   Display to User ───────► Confirm / Modify / Cancel
+                            │
+                            ▼
+                   Complete
 ```
 
-### 6.2 确认选项
+### 6.2 Confirmation Options
 
-| 选项 | 动作 |
-|------|------|
-| 确认 (Y) | 保存 Spec，继续下一步 |
-| 修改 (M) | 编辑特定章节 |
-| 取消 (C) | 终止，保留草稿 |
+| Option | Action |
+|--------|--------|
+| Confirm (Y) | Save Spec, proceed to next step |
+| Modify (M) | Edit specific sections |
+| Cancel (C) | Terminate, keep draft |
 
-### 6.3 修改模式
+### 6.3 Modification Mode
 
-用户可以指定修改范围：
-- `spec edit section:<章节名>` — 修改特定章节
-- `spec edit item:<编号>` — 修改特定需求点
-- `spec edit` — 打开完整编辑器
+User can specify modification scope:
+- `spec edit section:<section_name>` — Modify specific section
+- `spec edit item:<number>` — Modify specific requirement item
+- `spec edit` — Open full editor
 
 ---
 
-## 7. CLI 接口设计
+## 7. CLI Interface Design
 
 ```bash
-# 基本用法
-helix spec "我想做一个用户登录功能"
+# Basic usage
+helix spec "I want to build a user login feature"
 
-# 带选项
-helix spec "我想做一个用户登录功能" \
-  --template crud \           # 指定模板
-  --no-confirm \              # 跳过确认
-  --output spec.md \          # 输出文件
-  --context .                 # 项目上下文
+# With options
+helix spec "I want to build a user login feature" \
+  --template crud \           # Specify template
+  --no-confirm \              # Skip confirmation
+  --output spec.md \          # Output file
+  --context .                 # Project context
 
-# 交互模式
-helix spec                    # 进入交互式提问
+# Interactive mode
+helix spec                    # Enter interactive questioning
 
-# 查看模板
-helix spec templates          # 列出所有模板
+# View templates
+helix spec templates          # List all templates
 
-# 验证 Spec
-helix spec validate spec.md   # 验证规格说明书
+# Validate Spec
+helix spec validate spec.md   # Validate specification
 ```
 
 ---
 
-## 8. 配置文件
+## 8. Configuration Files
 
-### 8.1 项目级配置 `.helix/spec.yaml`
+### 8.1 Project-Level Config `.helix/spec.yaml`
 
 ```yaml
 spec:
-  # 默认模板
+  # Default template
   default_template: crud
 
-  # 自动确认模式
+  # Auto-confirm mode
   auto_confirm: false
 
-  # 模板路径
+  # Template path
   template_dir: .helix/templates
 
-  # Socratic 提问策略
+  # Socratic questioning strategy
   socratic:
     max_questions: 5
     confidence_threshold: 0.7
 ```
 
-### 8.2 全局配置 `~/.helix/config.yaml`
+### 8.2 Global Config `~/.helix/config.yaml`
 
 ```yaml
 spec:
-  # 首选 AI 引擎
+  # Preferred AI engine
   engine: claude_code
 
-  # 输出格式
+  # Output format
   default_format: markdown
 
-  # 自动学习
+  # Auto-learning
   learn_from_history: true
 ```
 
 ---
 
-## 9. 待讨论问题
+## 9. Open Discussion Issues
 
-1. [ ] **Socratic 提问的深度** — 应该问到什么程度？是否需要限制提问轮数？
+1. [ ] **Socratic questioning depth** — How deep should we go? Should we limit question rounds?
 
-2. [ ] **模板的数量** — 7 个模板够用吗？是否需要按语言/框架细分？
+2. [ ] **Number of templates** — Are 7 templates enough? Do we need language/framework-specific subdivision?
 
-3. [ ] **确认模式** — 默认确认还是默认直接生成？
+3. [ ] **Confirmation mode** — Default confirm or default generate directly?
 
-4. [ ] **多轮对话** — 是否支持在 Spec 生成后，继续添加新需求？
+4. [ ] **Multi-round conversation** — Should we support adding new requirements after Spec generation?
 
-5. [ ] **AI 生成 vs 模板填充** — 哪些部分用 LLM 生成，哪些用模板填充？
+5. [ ] **AI generation vs template filling** — Which parts use LLM generation, which use template filling?
 
-6. [ ] **与项目的集成** — 是否需要读取现有代码来理解项目上下文？
+6. [ ] **Project integration** — Do we need to read existing code to understand project context?
 
 ---
 
-## 10. 下一步
+## 10. Next Steps
 
-确认以上设计方向后，开始实现：
-1. 意图解析器
-2. 模板系统
-3. Socratic 提问器
-4. CLI 接口
+After confirming the design direction, implement:
+1. Intent parser
+2. Template system
+3. Socratic questioner
+4. CLI interface
