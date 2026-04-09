@@ -5,11 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "helix-ai"
 version = "0.1.0"
-description = "AI 时代软件工程方法论新范式"
+description = "AI Era Software Engineering Methodology - A New Paradigm"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
-    {name = "Peter", email = "peter@example.com"}
+    {name = "Peter Cheng"},
+    {name = "Jarvis"}
 ]
 requires-python = ">=3.10"
 dependencies = [

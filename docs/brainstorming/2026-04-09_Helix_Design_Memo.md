@@ -239,5 +239,5 @@ helix/
 
 ---
 
-*Design discussion participants: Peter + DeepSeek + Claude (Helix)*
+*Design discussion participants: Peter Cheng + Jarvis*
 *2026-04-09*
