@@ -149,7 +149,7 @@ class TestRunner:
         # 检查 pytest 可用
         try:
             result = subprocess.run(
-                ["pytest", "--tb=short", "-v", "--json-report", "--json-report-file=/tmp/pytest-report.json"],
+                ["pytest", "--tb=short", "-v"],
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
@@ -160,11 +160,19 @@ class TestRunner:
             output = result.stdout + result.stderr
 
             # 提取测试统计
-            if "passed" in output:
-                import re
-                match = re.search(r'(\d+) passed', output)
-                if match:
-                    test_details["passed"] = int(match.group(1))
+            import re
+            passed_match = re.search(r'(\d+) passed', output)
+            failed_match = re.search(r'(\d+) failed', output)
+
+            if passed_match:
+                test_details["passed"] = int(passed_match.group(1))
+            if failed_match:
+                test_details["failed"] = int(failed_match.group(1))
+                passed = False
+
+            # Check if tests were collected
+            if "no tests ran" in output.lower() or "no tests collected" in output.lower():
+                test_details["collected"] = 0
 
             if result.returncode != 0:
                 passed = False
