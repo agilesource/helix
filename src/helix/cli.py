@@ -121,20 +121,36 @@ def templates():
 
 
 @main.command()
-@click.argument("spec_file", type=click.Path(exists=True))
+@click.argument("input", type=str, required=False)
 @click.option("--framework", "-f", default="fastapi", help="Framework type (fastapi/django/express)")
 @click.option("--output", "-o", default=".", help="Output directory")
 @click.option("--dry-run", is_flag=True, help="Preview only, don't generate files")
-def build(spec_file: str, framework: str, output: str, dry_run: bool):
-    """Code skeleton generation - Generate code from specification
+@click.option("--requirement", "-r", "requirement_text", help="Requirement description (instead of spec file)")
+def build(input: str, framework: str, output: str, dry_run: bool, requirement_text: str):
+    """Code skeleton generation - Generate code from specification or requirement
 
     Usage:
         helix build SPEC.md
         helix build SPEC.md --framework fastapi
-        helix build SPEC.md -o ./src
+        helix build "user login feature"
+        helix build -r "user login feature"
     """
+    # Determine if input is a file or requirement text
+    spec_file = ""
+    if input:
+        input_path = Path(input)
+        if input_path.exists() and input_path.is_file():
+            spec_file = input
+            display_input = spec_file
+        else:
+            # Treat as requirement text
+            requirement_text = input
+            display_input = requirement_text
+    else:
+        display_input = requirement_text or "N/A"
+
     console.print(f"\n[bold blue]⚡ Helix Build[/bold blue] - Generating code skeleton")
-    console.print(f"  Specification: {spec_file}")
+    console.print(f"  Input: {display_input[:50]}{'...' if len(display_input) > 50 else ''}")
     console.print(f"  Framework: {framework}")
     console.print(f"  Output: {output}\n")
 
@@ -144,10 +160,11 @@ def build(spec_file: str, framework: str, output: str, dry_run: bool):
     # Create intent
     intent = Intent(
         type=IntentType.BUILD,
-        raw_input=spec_file,
+        raw_input=display_input,
         confidence=0.9,
         parameters={
             "spec_file": spec_file,
+            "requirement": requirement_text,
             "framework": framework,
             "output": output,
         }

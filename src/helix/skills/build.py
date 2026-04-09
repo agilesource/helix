@@ -12,6 +12,7 @@ from pathlib import Path
 from helix.skills.base import Skill, SkillResult, SkillConfig, SkillCategory, SkillStatus
 from helix.core.intent import Intent, IntentType
 from helix.core.context import HelixContext
+from rich.console import Console
 
 
 # ============ 数据模型 ============
@@ -344,32 +345,70 @@ class BuildSkill(Skill):
     examples = [
         "helix build SPEC.md",
         "helix build SPEC.md --framework fastapi",
+        "helix build 'user login feature'",
     ]
+
+    def __init__(self, config: Optional[SkillConfig] = None):
+        super().__init__(config)
+        self.console = Console()
+        self._spec_skill = None
+
+    def _do_initialize(self) -> None:
+        """Initialize skills"""
+        # Import here to avoid circular dependency
+        from helix.skills.spec import SpecSkill
+
+        self._spec_skill = SpecSkill()
 
     async def execute(self, intent: Intent, context: HelixContext) -> SkillResult:
         self.initialize()
         start_time = asyncio.get_event_loop().time()
 
+        # Check if input is a spec file or requirement text
         spec_file = intent.parameters.get('spec_file', '')
+        requirement_text = intent.parameters.get('requirement', '')
         framework = intent.parameters.get('framework', 'fastapi')
         output_dir = intent.parameters.get('output', '.')
 
-        if not spec_file:
+        # If requirement text provided, generate spec first
+        spec_content = None
+        if requirement_text and not spec_file:
+            self.console.print("[dim]Generating specification...[/dim]")
+            spec_intent = Intent(
+                type=IntentType.SPEC,
+                raw_input=requirement_text,
+                confidence=0.9,
+                parameters={}
+            )
+            spec_result = await self._spec_skill.execute(spec_intent, context)
+            if spec_result.success:
+                spec_content = spec_result.artifacts.get('spec', '') if spec_result.artifacts else spec_result.data.get('spec_content', '')
+                self.console.print("[dim]Specification generated.[/dim]\n")
+            else:
+                return SkillResult(
+                    success=False,
+                    message=f"Spec generation failed: {spec_result.message}",
+                    skill_name=self.name
+                )
+
+        # Parse spec from file or generated content
+        if spec_file:
+            spec_path = Path(spec_file)
+            if not spec_path.exists():
+                return SkillResult(
+                    success=False,
+                    message=f"File not found: {spec_file}",
+                    skill_name=self.name
+                )
+            spec_content = spec_path.read_text()
+        elif not spec_content:
             return SkillResult(
                 success=False,
-                message="请指定规格说明书文件",
+                message="Please provide spec file or requirement text",
                 skill_name=self.name
             )
 
-        spec_path = Path(spec_file)
-        if not spec_path.exists():
-            return SkillResult(
-                success=False,
-                message=f"文件不存在: {spec_file}",
-                skill_name=self.name
-            )
-
-        spec_content = spec_path.read_text()
+        # Parse and generate code
         parser = SpecParser()
         spec = parser.parse(spec_content)
 
@@ -389,11 +428,12 @@ class BuildSkill(Skill):
 
         return SkillResult(
             success=True,
-            message=f"已生成 {len(files)} 个文件",
+            message=f"Generated {len(files)} files",
             data={
                 "spec_title": spec.title,
                 "framework": framework,
                 "files": generated_files,
+                "requirement": requirement_text or spec_file,
             },
             skill_name=self.name,
             execution_time_ms=execution_time,
