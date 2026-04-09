@@ -94,4 +94,4 @@ See [docs/brainstorming/VMV.md](docs/brainstorming/2026-04-09_Helix_VMV.md)
 
 ## License
 
-MIT
+Apache License 2.0 - see [LICENSE](LICENSE) file for details.
