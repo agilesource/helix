@@ -1,7 +1,7 @@
 """
-/verify 技能 - 自动化验证
+/verify Skill - Automated Verification
 
-运行静态检查、单元测试、验收测试
+Run static checks, unit tests, and acceptance tests.
 """
 
 import asyncio
@@ -17,11 +17,11 @@ from helix.core.intent import Intent, IntentType
 from helix.core.context import HelixContext
 
 
-# ============ 数据模型 ============
+# ============ Data Models ============
 
 @dataclass
 class CheckResult:
-    """检查结果"""
+    """Check result"""
     name: str
     status: str  # pass, fail, skip, error
     message: str = ""
@@ -31,17 +31,17 @@ class CheckResult:
 
 @dataclass
 class VerifyReport:
-    """验证报告"""
+    """Verification report"""
     timestamp: str
     duration_seconds: float
     project_path: str
 
-    # 各层级结果
+    # Results for each level
     static: CheckResult
     test: CheckResult
     acceptance: CheckResult
 
-    # 总体状态
+    # Overall status
     overall: str  # pass, fail, partial
 
     def to_dict(self) -> dict:
@@ -70,10 +70,10 @@ class VerifyReport:
         }
 
 
-# ============ 验证器 ============
+# ============ Verifiers ============
 
 class StaticChecker:
-    """静态检查"""
+    """Static checker"""
 
     TOOLS = ["ruff", "black", "mypy"]
 
@@ -81,12 +81,12 @@ class StaticChecker:
         self.project_path = project_path
 
     async def run(self) -> CheckResult:
-        """运行静态检查"""
+        """Run static checks"""
         start = datetime.now()
         issues = []
         passed = True
 
-        # 检查 ruff 可用
+        # Check if ruff is available
         try:
             result = subprocess.run(
                 ["ruff", "check", "."],
@@ -104,7 +104,7 @@ class StaticChecker:
             issues.append("ruff timeout")
             passed = False
 
-        # 检查 mypy 可用
+        # Check if mypy is available
         try:
             result = subprocess.run(
                 ["mypy", "src", "--ignore-missing-imports"],
@@ -134,19 +134,19 @@ class StaticChecker:
 
 
 class TestRunner:
-    """测试运行器"""
+    """Test runner"""
 
     def __init__(self, project_path: Path):
         self.project_path = project_path
 
     async def run(self) -> CheckResult:
-        """运行测试"""
+        """Run tests"""
         start = datetime.now()
         issues = []
         passed = True
         test_details = {}
 
-        # 检查 pytest 可用
+        # Check if pytest is available
         try:
             result = subprocess.run(
                 ["pytest", "--tb=short", "-v"],
@@ -156,10 +156,10 @@ class TestRunner:
                 timeout=120
             )
 
-            # 解析输出
+            # Parse output
             output = result.stdout + result.stderr
 
-            # 提取测试统计
+            # Extract test statistics
             import re
             passed_match = re.search(r'(\d+) passed', output)
             failed_match = re.search(r'(\d+) failed', output)
@@ -196,17 +196,17 @@ class TestRunner:
 
 
 class AcceptanceChecker:
-    """验收测试检查器"""
+    """Acceptance test checker"""
 
     def __init__(self, project_path: Path):
         self.project_path = project_path
 
     async def run(self) -> CheckResult:
-        """检查验收标准"""
+        """Check acceptance criteria"""
         start = datetime.now()
         issues = []
 
-        # 查找 SPEC.md
+        # Find SPEC.md
         spec_files = list(self.project_path.glob("SPEC.md"))
         spec_files.extend(self.project_path.glob("**/SPEC.md"))
         spec_files.extend(self.project_path.glob("docs/spec/*.md"))
@@ -220,17 +220,17 @@ class AcceptanceChecker:
                 details={}
             )
 
-        # 读取第一个 SPEC
+        # Read first SPEC
         spec_content = spec_files[0].read_text()
 
-        # 提取验收标准
+        # Extract acceptance criteria
         ac_items = []
         for line in spec_content.split('\n'):
             if '- [ ]' in line:
                 ac_items.append(line.replace('- [ ]', '').strip())
 
-        # 检查测试覆盖
-        # 简化：检查是否有测试文件
+        # Check test coverage
+        # Simplified: check if test files exist
         test_files = list(self.project_path.glob("tests/*.py"))
         test_files.extend(self.project_path.glob("test_*.py"))
 
@@ -253,7 +253,7 @@ class AcceptanceChecker:
             details={
                 "ac_count": len(ac_items),
                 "test_files": len(test_files),
-                "ac_items": ac_items[:5]  # 前5个
+                "ac_items": ac_items[:5]  # first 5
             }
         )
 
@@ -261,10 +261,10 @@ class AcceptanceChecker:
 # ============ VerifySkill ============
 
 class VerifySkill(Skill):
-    """自动化验证技能"""
+    """Automated verification skill"""
 
     name = "verify"
-    description = "运行静态检查、单元测试、验收测试"
+    description = "Run static checks, unit tests, and acceptance tests"
     category = SkillCategory.EXECUTION
     status = SkillStatus.DRAFT
 
@@ -278,7 +278,7 @@ class VerifySkill(Skill):
         self.initialize()
         start_time = asyncio.get_event_loop().time()
 
-        # 解析参数
+        # Parse parameters
         project_path = intent.parameters.get('path', '.')
         level = intent.parameters.get('level', 'full')  # static, test, acceptance, full
 
@@ -286,11 +286,11 @@ class VerifySkill(Skill):
         if not project.exists():
             return SkillResult(
                 success=False,
-                message=f"项目路径不存在: {project_path}",
+                message=f"Project path does not exist: {project_path}",
                 skill_name=self.name
             )
 
-        # 运行各层级检查
+        # Run checks for each level
         results = {}
 
         if level in ["static", "full"]:
@@ -311,7 +311,7 @@ class VerifySkill(Skill):
         else:
             results["acceptance"] = CheckResult(name="acceptance", status="skip")
 
-        # 计算总体状态
+        # Calculate overall status
         statuses = [r.status for r in results.values() if r.status != "skip"]
         if all(s == "pass" for s in statuses):
             overall = "pass"
@@ -322,7 +322,7 @@ class VerifySkill(Skill):
 
         execution_time = int((asyncio.get_event_loop().time() - start_time) * 1000)
 
-        # 生成报告
+        # Generate report
         report = VerifyReport(
             timestamp=datetime.now().isoformat(),
             duration_seconds=execution_time / 1000,
@@ -333,7 +333,7 @@ class VerifySkill(Skill):
             overall=overall
         )
 
-        # 输出人类可读报告
+        # Output human-readable report
         report_text = self._format_report(report)
 
         return SkillResult(
@@ -345,34 +345,34 @@ class VerifySkill(Skill):
         )
 
     def _format_report(self, report: VerifyReport) -> str:
-        """格式化报告为人类可读"""
+        """Format report for human readability"""
         lines = [
-            "╭───────────────────────── 验证报告 ──────────────────────────╮",
-            f"│ 项目: {report.project_path}",
-            f"│ 耗时: {report.duration_seconds:.2f}s",
+            "╭───────────────────────── Verification Report ──────────────────────────╮",
+            f"│ Project: {report.project_path}",
+            f"│ Duration: {report.duration_seconds:.2f}s",
             "├──────────────────────────────────────────────────────────────┤",
         ]
 
-        # 静态检查
+        # Static check
         static = report.static
         status_icon = "✓" if static.status == "pass" else "✗" if static.status == "fail" else "-"
-        lines.append(f"│ 静态检查    {status_icon} {static.status.upper()} ({static.duration_ms}ms)")
+        lines.append(f"│ Static       {status_icon} {static.status.upper()} ({static.duration_ms}ms)")
 
-        # 测试
+        # Test
         test = report.test
         status_icon = "✓" if test.status == "pass" else "✗" if test.status == "fail" else "-"
         cov = test.details.get("coverage", "N/A")
-        lines.append(f"│ 单元测试    {status_icon} {test.status.upper()} (覆盖率: {cov})")
+        lines.append(f"│ Unit Test    {status_icon} {test.status.upper()} (coverage: {cov})")
 
-        # 验收
+        # Acceptance
         acc = report.acceptance
         status_icon = "✓" if acc.status == "pass" else "⚠" if acc.status == "partial" else "-"
-        lines.append(f"│ 验收测试    {status_icon} {acc.status.upper()}")
+        lines.append(f"│ Acceptance   {status_icon} {acc.status.upper()}")
 
-        # 总体
+        # Overall
         overall_icon = "✓" if report.overall == "pass" else "⚠" if report.overall == "partial" else "✗"
         lines.append("├──────────────────────────────────────────────────────────────┤")
-        lines.append(f"│ 总体状态: {overall_icon} {report.overall.upper()}")
+        lines.append(f"│ Overall:     {overall_icon} {report.overall.upper()}")
         lines.append("╰──────────────────────────────────────────────────────────────╯")
 
         return "\n".join(lines)

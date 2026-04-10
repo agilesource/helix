@@ -1,7 +1,7 @@
 """
-/build 技能 - 代码骨架生成
+/build Skill - Code Scaffolding Generation
 
-根据规格说明书生成代码骨架
+Generate code scaffolding from specifications.
 """
 
 import asyncio
@@ -56,11 +56,11 @@ Output each file with format:
 Start each file with this marker."""
 
 
-# ============ 数据模型 ============
+# ============ Data Models ============
 
 @dataclass
 class FieldDef:
-    """字段定义"""
+    """Field definition"""
     name: str
     field_type: str
     required: bool = True
@@ -69,7 +69,7 @@ class FieldDef:
 
 @dataclass
 class APIEndpoint:
-    """API 端点"""
+    """API endpoint"""
     method: str
     path: str
     description: str = ""
@@ -77,7 +77,7 @@ class APIEndpoint:
 
 @dataclass
 class TestCase:
-    """测试用例"""
+    """Test case"""
     name: str
     description: str = ""
     steps: List[str] = field(default_factory=list)
@@ -86,7 +86,7 @@ class TestCase:
 
 @dataclass
 class SpecDocument:
-    """解析后的规格文档"""
+    """Parsed specification document"""
     title: str = ""
     project: str = ""
     overview: str = ""
@@ -98,7 +98,7 @@ class SpecDocument:
 
 @dataclass
 class CodeFile:
-    """生成的代码文件"""
+    """Generated code file"""
     path: str
     content: str
     language: str = "python"
@@ -107,10 +107,10 @@ class CodeFile:
 # ============ SpecParser ============
 
 class SpecParser:
-    """规格说明书解析器"""
+    """Specification parser"""
 
     def parse(self, spec_content: str) -> SpecDocument:
-        """解析 Markdown 规格文件"""
+        """Parse Markdown specification file"""
         doc = SpecDocument()
 
         lines = spec_content.split('\n')
@@ -185,7 +185,7 @@ class SpecParser:
 # ============ CodeGenerator ============
 
 class CodeGenerator:
-    """代码生成器"""
+    """Code generator"""
 
     def __init__(self, framework: str = "fastapi"):
         self.framework = framework
@@ -213,7 +213,7 @@ class CodeGenerator:
             for m in spec.models
         ]) or "id: str"
 
-        model_content = f'''"""数据模型"""
+        model_content = f'''"""Data models"""
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
@@ -244,7 +244,7 @@ class {model_name}Update(BaseModel):
         ))
 
         # 4. api/{domain}.py
-        api_content = f'''"""API 路由"""
+        api_content = f'''"""API routes"""
 from fastapi import APIRouter, HTTPException
 from typing import List
 from models.{domain} import {model_name}, {model_name}Create, {model_name}Update
@@ -253,32 +253,32 @@ router = APIRouter(prefix="/api/{domain}", tags=["{domain}"])
 
 @router.get("", response_model=List[{model_name}])
 async def list_{domain}():
-    """获取{domain}列表"""
-    # TODO: 实现列表查询
+    """List {domain}"""
+    # TODO: implement list query
     return []
 
 @router.get("/{{item_id}}", response_model={model_name})
 async def get_{domain}(item_id: str):
-    """获取单个{domain}"""
-    # TODO: 实现查询
+    """Get single {domain}"""
+    # TODO: implement get
     raise HTTPException(status_code=404)
 
 @router.post("", response_model={model_name})
 async def create_{domain}(item: {model_name}Create):
-    """创建{domain}"""
-    # TODO: 实现创建
+    """Create {domain}"""
+    # TODO: implement create
     pass
 
 @router.put("/{{item_id}}", response_model={model_name})
 async def update_{domain}(item_id: str, item: {model_name}Update):
-    """更新{domain}"""
-    # TODO: 实现更新
+    """Update {domain}"""
+    # TODO: implement update
     raise HTTPException(status_code=404)
 
 @router.delete("/{{item_id}}")
 async def delete_{domain}(item_id: str):
-    """删除{domain}"""
-    # TODO: 实现删除
+    """Delete {domain}"""
+    # TODO: implement delete
     return {{"status": "deleted"}}
 '''
         files.append(CodeFile(path=f"api/{domain}.py", content=api_content))
@@ -300,17 +300,17 @@ def client():
         files.append(CodeFile(path="tests/conftest.py", content=conftest_content))
 
         # 6. tests/test_{domain}.py
-        test_content = f'''"""测试用例"""
+        test_content = f'''"""Test cases"""
 import pytest
 from fastapi.testclient import TestClient
 
 def test_list_{domain}(client: TestClient):
-    """测试获取{domain}列表"""
+    """Test list {domain}"""
     response = client.get("/api/{domain}")
     assert response.status_code == 200
 
 def test_create_{domain}(client: TestClient):
-    """测试创建{domain}"""
+    """Test create {domain}"""
     data = {{}}
     response = client.post("/api/{domain}", json=data)
     assert response.status_code in [200, 201]
@@ -324,7 +324,7 @@ def test_create_{domain}(client: TestClient):
         ))
 
         # 8. main.py
-        main_content = f'''"""FastAPI 应用入口"""
+        main_content = f'''"""FastAPI application entry point"""
 from fastapi import FastAPI
 from api import router
 
@@ -457,10 +457,10 @@ class LLMCodeGenerator:
 # ============ BuildSkill ============
 
 class BuildSkill(Skill):
-    """代码骨架生成技能"""
+    """Code scaffolding generation skill"""
 
     name = "build"
-    description = "根据规格说明书生成代码骨架"
+    description = "Generate code scaffolding from specification"
     category = SkillCategory.EXECUTION
     status = SkillStatus.DRAFT
 

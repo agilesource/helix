@@ -1,7 +1,7 @@
 """
 Anthropic API Adapter
 
-使用 Anthropic Claude API 进行 LLM 调用
+Use Anthropic Claude API for LLM calls
 """
 
 import os
@@ -12,7 +12,7 @@ from helix.adapters.base import AIAdapter, AIRequest, AIResponse
 
 
 class AnthropicAdapter(AIAdapter):
-    """Anthropic Claude API 适配器"""
+    """Anthropic Claude API adapter"""
 
     name = "anthropic"
     supported_models = ["claude-sonnet-4-20250514", "claude-sonnet-3-5-20241022", "claude-haiku-3-20240307"]
@@ -30,11 +30,11 @@ class AnthropicAdapter(AIAdapter):
         self.verify_ssl = self.base_url == "https://api.anthropic.com/v1"
 
     def is_available(self) -> bool:
-        """检查 API 是否可用"""
+        """Check if API is available"""
         return bool(self.api_key)
 
     async def execute(self, request: AIRequest) -> AIResponse:
-        """执行 Anthropic API 调用"""
+        """Execute Anthropic API call"""
         if not self.is_available():
             return AIResponse(
                 content="",
@@ -110,7 +110,7 @@ class AnthropicAdapter(AIAdapter):
 
 
 class OpenAIAdapter(AIAdapter):
-    """OpenAI API 适配器（备用）"""
+    """OpenAI API adapter (fallback)"""
 
     name = "openai"
     supported_models = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"]
@@ -190,19 +190,19 @@ class OpenAIAdapter(AIAdapter):
             )
 
 
-# 工厂函数 - 自动选择可用的适配器
+# Factory function - automatically select available adapter
 def get_llm_adapter() -> Optional[AIAdapter]:
-    """获取可用的 LLM 适配器"""
+    """Get available LLM adapter"""
 
-    # 优先尝试 Anthropic
+    # Try Anthropic first
     anthropic = AnthropicAdapter()
     if anthropic.is_available():
         return anthropic
 
-    # 其次尝试 OpenAI
+    # Then try OpenAI
     openai = OpenAIAdapter()
     if openai.is_available():
         return openai
 
-    # 都不可用
+    # Neither is available
     return None
