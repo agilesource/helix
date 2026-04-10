@@ -27,7 +27,7 @@ console = Console()
 @click.group()
 @click.version_option(version=__version__)
 def main():
-    """Helix - AI Era Software Engineering Methodology New Paradigm"""
+    """Project Helix - AI Era Software Engineering Methodology New Paradigm"""
     pass
 
 
@@ -299,9 +299,10 @@ def list_skills():
 
 @main.command()
 def status():
-    """View Helix status"""
-    console.print(f"[bold]Helix Version:[/bold] {__version__}")
-    console.print("[bold]Status:[/bold] Ready")
+    """View Project Helix status"""
+    console.print(f"[bold]Project:[/bold] Helix")
+    console.print(f"[bold]Version:[/bold] {__version__}")
+    console.print("[bold]Status:[/bold] Alpha")
     console.print("")
     console.print("[bold]Supported Engines:[/bold]")
     console.print("  - Claude Code (In Development)")

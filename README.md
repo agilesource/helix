@@ -1,6 +1,10 @@
-# Helix
+# Project Helix
 
 > AI Era Software Engineering Methodology - A New Paradigm
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://www.python.org)
+[![Status](https://img.shields.io/badge/Status-Alpha-orange.svg)](#)
 
 ## Core Philosophy
 
