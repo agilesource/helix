@@ -1,5 +1,5 @@
 """
-Helix 核心模块
+Helix Core Module
 """
 
 from helix.core.orchestrator import HelixOrchestrator, HelixConfig, ExecutionMode

@@ -1,5 +1,5 @@
 """
-Helix Skills 包
+Helix Skills Package
 """
 
 from helix.skills.base import Skill, SkillResult, SkillConfig, SkillCategory, SkillStatus

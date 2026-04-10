@@ -1,7 +1,7 @@
 """
-Helix - AI 时代软件工程方法论新范式
+Helix - AI Era Software Engineering Methodology New Paradigm
 
-核心模块导入
+Core module imports
 """
 
 __version__ = "0.1.0"
