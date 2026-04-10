@@ -1,7 +1,7 @@
 """
-Helix 技能基类
+Helix Skill Base Classes
 
-所有技能都必须继承这个基类
+All skills must inherit from this base class
 """
 
 from abc import ABC, abstractmethod
@@ -12,44 +12,44 @@ from enum import Enum
 
 
 class SkillCategory(Enum):
-    """技能分类"""
+    """Skill Category"""
 
-    INFRASTRUCTURE = "infrastructure"  # 基础设施
-    EXECUTION = "execution"  # 执行引擎
-    QUALITY = "quality"  # 质量保障
-    META = "meta"  # 元技能
+    INFRASTRUCTURE = "infrastructure"
+    EXECUTION = "execution"
+    QUALITY = "quality"
+    META = "meta"
 
 
 class SkillStatus(Enum):
-    """技能状态"""
+    """Skill Status"""
 
-    DRAFT = "draft"  # 设计中
-    EXPERIMENTAL = "experimental"  # 实验中
-    STABLE = "stable"  # 稳定
-    DEPRECATED = "deprecated"  # 已废弃
+    DRAFT = "draft"
+    EXPERIMENTAL = "experimental"
+    STABLE = "stable"
+    DEPRECATED = "deprecated"
 
 
 @dataclass
 class SkillResult:
-    """技能执行结果"""
+    """Skill Execution Result"""
 
     success: bool
     message: str
     data: Dict[str, Any] = field(default_factory=dict)
 
-    # 附加信息
+    # Additional info
     skill_name: str = ""
     execution_time_ms: int = 0
-    artifacts: Dict[str, str] = field(default_factory=dict)  # 生成的文件
+    artifacts: Dict[str, str] = field(default_factory=dict)
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
 
 
 @dataclass
 class SkillConfig:
-    """技能配置"""
+    """Skill Configuration"""
 
-    auto_confirm: bool = False  # 是否自动确认
+    auto_confirm: bool = False
     timeout_seconds: int = 300
     max_retries: int = 3
     verbose: bool = False
@@ -57,18 +57,18 @@ class SkillConfig:
 
 class Skill(ABC):
     """
-    技能基类
+    Skill Base Class
 
-    所有 Helix 技能必须继承这个类并实现 execute 方法
+    All Helix skills must inherit from this class and implement execute method
     """
 
-    # 类属性 - 子类必须覆盖
-    name: str = ""  # 技能名称（命令名）
-    description: str = ""  # 技能描述
+    # Class attributes - subclasses must override
+    name: str = ""
+    description: str = ""
     category: SkillCategory = SkillCategory.EXECUTION
     status: SkillStatus = SkillStatus.DRAFT
 
-    # 用法示例
+    # Usage examples
     examples: List[str] = []
 
     def __init__(self, config: Optional[SkillConfig] = None):
@@ -76,53 +76,53 @@ class Skill(ABC):
         self._initialized = False
 
     def initialize(self) -> None:
-        """初始化技能"""
+        """Initialize skill"""
         if not self._initialized:
             self._do_initialize()
             self._initialized = True
 
     def _do_initialize(self) -> None:
-        """子类可以实现的自定义初始化"""
+        """Subclasses can implement custom initialization"""
         pass
 
     @abstractmethod
     async def execute(self, intent, context) -> SkillResult:
         """
-        执行技能
+        Execute skill
 
         Args:
-            intent: 解析后的用户意图
-            context: Helix 上下文
+            intent: Parsed user intent
+            context: Helix context
 
         Returns:
-            SkillResult: 执行结果
+            SkillResult: Execution result
         """
         pass
 
     async def validate(self, intent, context) -> tuple[bool, str]:
         """
-        验证输入是否合法
+        Validate input
 
         Returns:
             (is_valid, error_message)
         """
-        # 默认实现：总是有效
+        # Default: always valid
         return True, ""
 
     def get_usage(self) -> str:
-        """获取使用说明"""
+        """Get usage instructions"""
         lines = [
             f"## {self.name}",
             f"",
             f"{self.description}",
             f"",
-            f"**分类**: {self.category.value}",
-            f"**状态**: {self.status.value}",
+            f"**Category**: {self.category.value}",
+            f"**Status**: {self.status.value}",
             f"",
         ]
 
         if self.examples:
-            lines.append("**示例**:")
+            lines.append("**Examples**:")
             for example in self.examples:
                 lines.append(f"```\n{self.name} {example}\n```")
 

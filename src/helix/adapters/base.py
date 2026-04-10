@@ -1,7 +1,7 @@
 """
-AI 引擎适配器基类
+AI Engine Adapter Base Classes
 
-Helix 支持多种 AI 引擎作为执行后端：
+Helix supports multiple AI engines as execution backends:
 - Claude Code
 - OpenClaw
 - OpenCode
@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional
 
 @dataclass
 class AIRequest:
-    """AI 请求"""
+    """AI Request"""
     prompt: str
     context: Optional[Dict[str, Any]] = None
     model: str = "default"
@@ -25,7 +25,7 @@ class AIRequest:
 
 @dataclass
 class AIResponse:
-    """AI 响应"""
+    """AI Response"""
     content: str
     success: bool
     error: Optional[str] = None
@@ -33,46 +33,46 @@ class AIResponse:
 
 
 class AIAdapter(ABC):
-    """AI 适配器基类"""
+    """AI Adapter Base Class"""
 
     name: str = "base"
     supported_models: list = []
 
     @abstractmethod
     async def execute(self, request: AIRequest) -> AIResponse:
-        """执行 AI 请求"""
+        """Execute AI request"""
         pass
 
     def is_available(self) -> bool:
-        """检查适配器是否可用"""
+        """Check if adapter is available"""
         raise NotImplementedError
 
 
 class ClaudeCodeAdapter(AIAdapter):
-    """Claude Code 适配器"""
+    """Claude Code Adapter"""
 
     name = "claude_code"
     supported_models = ["sonnet", "haiku", "opus"]
 
     async def execute(self, request: AIRequest) -> AIResponse:
-        # TODO: 实现 Claude Code 调用
+        # TODO: Implement Claude Code invocation
         pass
 
     def is_available(self) -> bool:
-        # TODO: 检查 CLI 是否可用
+        # TODO: Check if CLI is available
         return False
 
 
 class OpenClawAdapter(AIAdapter):
-    """OpenClaw 适配器"""
+    """OpenClaw Adapter"""
 
     name = "openclaw"
     supported_models = ["default"]
 
     async def execute(self, request: AIRequest) -> AIResponse:
-        # TODO: 实现 OpenClaw 调用
+        # TODO: Implement OpenClaw invocation
         pass
 
     def is_available(self) -> bool:
-        # TODO: 检查 CLI 是否可用
+        # TODO: Check if CLI is available
         return False

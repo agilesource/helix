@@ -1,11 +1,11 @@
 """
-Helix 上下文管理模块
+Helix Context Management Module
 
-负责：
-1. 会话历史管理
-2. 项目状态跟踪
-3. 跨会话记忆
-4. 知识图谱
+Responsibilities:
+1. Session history management
+2. Project state tracking
+3. Cross-session memory
+4. Knowledge graph
 """
 
 from dataclasses import dataclass, field
@@ -15,7 +15,7 @@ from enum import Enum
 
 
 class SessionState(Enum):
-    """会话状态"""
+    """Session state"""
 
     IDLE = "idle"
     RUNNING = "running"
@@ -26,7 +26,7 @@ class SessionState(Enum):
 
 @dataclass
 class Interaction:
-    """单次交互记录"""
+    """Single interaction record"""
 
     timestamp: datetime
     intent_type: str
@@ -39,30 +39,30 @@ class Interaction:
 
 @dataclass
 class ProjectState:
-    """项目状态"""
+    """Project state"""
 
     project_path: str
     project_type: str  # python, javascript, go, etc.
     framework: Optional[str] = None
 
-    # Git 状态
+    # Git state
     current_branch: Optional[str] = None
     is_dirty: bool = False
 
-    # 代码统计
+    # Code statistics
     lines_of_code: int = 0
     test_coverage: float = 0.0
 
-    # 质量指标
+    # Quality metrics
     last_review_score: Optional[float] = None
-    gate_level: int = 0  # 0-3 门禁等级
+    gate_level: int = 0  # 0-3 gate level
 
 
 class HelixContext:
     """
-    Helix 上下文管理器
+    Helix Context Manager
 
-    维护整个会话的状态信息
+    Maintains state information for the entire session.
     """
 
     def __init__(self):
@@ -70,20 +70,20 @@ class HelixContext:
         self.session_state: SessionState = SessionState.IDLE
         self.started_at: datetime = datetime.now()
 
-        # 当前项目
+        # Current project
         self.project: Optional[ProjectState] = None
 
-        # 交互历史
+        # Interaction history
         self.interactions: List[Interaction] = []
 
-        # 记忆（跨会话）
+        # Memory (cross-session)
         self.memories: List[Dict[str, Any]] = []
 
-        # 临时数据
+        # Temporary data
         self.temp_data: Dict[str, Any] = {}
 
     def start_session(self, project_path: str) -> None:
-        """开始新会话"""
+        """Start new session"""
         self.session_state = SessionState.RUNNING
         self.project = ProjectState(project_path=project_path, project_type="unknown")
 
@@ -92,7 +92,7 @@ class HelixContext:
         intent,
         result,
     ) -> None:
-        """记录交互"""
+        """Record interaction"""
         interaction = Interaction(
             timestamp=datetime.now(),
             intent_type=intent.type.value,
@@ -105,7 +105,7 @@ class HelixContext:
         self.interactions.append(interaction)
 
     def add_memory(self, memory_type: str, content: str, tags: List[str] = None) -> None:
-        """添加记忆"""
+        """Add memory"""
         self.memories.append({
             "type": memory_type,
             "content": content,
@@ -114,11 +114,11 @@ class HelixContext:
         })
 
     def get_recent_interactions(self, count: int = 10) -> List[Interaction]:
-        """获取最近交互"""
+        """Get recent interactions"""
         return self.interactions[-count:]
 
     def get_summary(self) -> Dict[str, Any]:
-        """获取上下文摘要"""
+        """Get context summary"""
         return {
             "session_id": self.session_id,
             "state": self.session_state.value,

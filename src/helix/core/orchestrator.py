@@ -1,11 +1,11 @@
 """
-Helix 核心调度中心
+Helix Core Orchestrator
 
-负责：
-1. 意图识别 - 理解用户想要什么
-2. 技能路由 - 选择合适的技能执行
-3. 执行调度 - 管理技能执行流程
-4. 结果整合 - 汇总并返回结果
+Core responsibilities:
+1. Intent recognition - Understand what the user wants
+2. Skill routing - Select appropriate skill to execute
+3. Execution scheduling - Manage skill execution flow
+4. Result aggregation - Aggregate and return results
 """
 
 from typing import Optional, Dict, Any, List
@@ -18,9 +18,9 @@ from helix.skills.base import Skill, SkillResult
 
 
 class ExecutionMode(Enum):
-    """执行模式 - 支持不同 AI 引擎"""
+    """Execution mode - supports different AI engines"""
 
-    AUTO = "auto"  # 自动选择
+    AUTO = "auto"
     CLAUDE_CODE = "claude_code"
     OPENCLAW = "openclaw"
     OPENCODE = "opencode"
@@ -31,26 +31,26 @@ class ExecutionMode(Enum):
 
 @dataclass
 class HelixConfig:
-    """Helix 全局配置"""
+    """Helix Global Configuration"""
 
     execution_mode: ExecutionMode = ExecutionMode.AUTO
-    auto_confirm: bool = False  # 是否自动确认每个步骤
+    auto_confirm: bool = False
     verbose: bool = False
     log_level: str = "INFO"
 
-    # 适配器配置
+    # Adapter configuration
     adapters: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
 
 class HelixOrchestrator:
     """
-    Helix 调度中心
+    Helix Orchestrator
 
-    核心职责：
-    - 意图识别与解析
-    - 技能路由与调度
-    - 多引擎适配
-    - 上下文管理
+    Core responsibilities:
+    - Intent recognition and parsing
+    - Skill routing and scheduling
+    - Multi-engine adaptation
+    - Context management
     """
 
     def __init__(self, config: Optional[HelixConfig] = None):
@@ -60,92 +60,92 @@ class HelixOrchestrator:
         self._adapters: Dict[ExecutionMode, Any] = {}
 
     def register_skill(self, skill: Skill) -> None:
-        """注册技能"""
+        """Register a skill"""
         self._skills[skill.name] = skill
 
     def register_adapter(self, mode: ExecutionMode, adapter: Any) -> None:
-        """注册 AI 引擎适配器"""
+        """Register an AI engine adapter"""
         self._adapters[mode] = adapter
 
     async def run(self, user_input: str) -> SkillResult:
         """
-        主入口：处理用户输入
+        Main entry point: Process user input
 
-        流程：
-        1. 解析意图
-        2. 路由到技能
-        3. 执行技能
-        4. 返回结果
+        Flow:
+        1. Parse intent
+        2. Route to skill
+        3. Execute skill
+        4. Return result
         """
-        # Step 1: 意图识别
+        # Step 1: Intent recognition
         intent = self._parse_intent(user_input)
 
-        # Step 2: 技能路由
+        # Step 2: Skill routing
         skill = self._route_skill(intent)
 
         if not skill:
             return SkillResult(
                 success=False,
-                message=f"无法处理该意图: {intent.type.value}",
+                message=f"Cannot handle intent: {intent.type.value}",
                 data={"intent": intent}
             )
 
-        # Step 3: 执行技能
+        # Step 3: Execute skill
         result = await skill.execute(intent, self.context)
 
-        # Step 4: 更新上下文
+        # Step 4: Update context
         self.context.add_interaction(intent, result)
 
         return result
 
     def _parse_intent(self, user_input: str) -> Intent:
-        """解析用户意图"""
-        # TODO: 实现更智能的意图识别
-        # 暂时使用简单的关键词匹配
+        """Parse user intent"""
+        # TODO: Implement smarter intent recognition
+        # For now, use simple keyword matching
 
         input_lower = user_input.lower()
 
-        # 规格类需求
-        if any(kw in input_lower for kw in ["想要", "需要", "做一个", "功能", "需求", "spec"]):
+        # Specification requirements
+        if any(kw in input_lower for kw in ["want", "need", "build", "feature", "requirement", "spec"]):
             return Intent(
                 type=IntentType.SPEC,
                 raw_input=user_input,
                 confidence=0.9
             )
 
-        # 构建类需求
-        if any(kw in input_lower for kw in ["实现", "开发", "写代码", "build", "创建"]):
+        # Build requirements
+        if any(kw in input_lower for kw in ["implement", "develop", "write code", "build", "create"]):
             return Intent(
                 type=IntentType.BUILD,
                 raw_input=user_input,
                 confidence=0.8
             )
 
-        # 验证类需求
-        if any(kw in input_lower for kw in ["测试", "验证", "检查", "verify", "test"]):
+        # Verification requirements
+        if any(kw in input_lower for kw in ["test", "verify", "check", "verify", "test"]):
             return Intent(
                 type=IntentType.VERIFY,
                 raw_input=user_input,
                 confidence=0.9
             )
 
-        # 发布类需求
-        if any(kw in input_lower for kw in ["发布", "部署", "ship", "deploy"]):
+        # Ship/Deploy requirements
+        if any(kw in input_lower for kw in ["ship", "deploy", "release", "publish"]):
             return Intent(
                 type=IntentType.SHIP,
                 raw_input=user_input,
                 confidence=0.9
             )
 
-        # 审查类需求
-        if any(kw in input_lower for kw in ["审查", "review", "检查代码"]):
+        # Review requirements
+        if any(kw in input_lower for kw in ["review", "check code", "audit"]):
             return Intent(
                 type=IntentType.REVIEW,
                 raw_input=user_input,
                 confidence=0.9
             )
 
-        # 默认：通用对话
+        # Default: general conversation
         return Intent(
             type=IntentType.GENERAL,
             raw_input=user_input,
@@ -153,9 +153,9 @@ class HelixOrchestrator:
         )
 
     def _route_skill(self, intent: Intent) -> Optional[Skill]:
-        """根据意图路由到技能"""
+        """Route intent to skill"""
 
-        # 意图类型到技能名的映射
+        # Intent type to skill name mapping
         mapping = {
             IntentType.SPEC: "spec",
             IntentType.BUILD: "build",
@@ -177,9 +177,9 @@ class HelixOrchestrator:
         return None
 
     def get_available_skills(self) -> List[str]:
-        """获取所有可用技能"""
+        """Get all available skills"""
         return list(self._skills.keys())
 
     def get_context(self) -> HelixContext:
-        """获取当前上下文"""
+        """Get current context"""
         return self.context
