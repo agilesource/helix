@@ -9,8 +9,7 @@ description = "AI Era Software Engineering Methodology - A New Paradigm"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
-    {name = "Peter Cheng"},
-    {name = "Jarvis"}
+    {name = "Peter Cheng", email = "petercheng@opensourcevalley.com"}
 ]
 requires-python = ">=3.10"
 dependencies = [
