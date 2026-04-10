@@ -125,8 +125,9 @@ def templates():
 @click.option("--framework", "-f", default="fastapi", help="Framework type (fastapi/django/express)")
 @click.option("--output", "-o", default=".", help="Output directory")
 @click.option("--dry-run", is_flag=True, help="Preview only, don't generate files")
+@click.option("--llm", is_flag=True, help="Use LLM for enhanced code generation")
 @click.option("--requirement", "-r", "requirement_text", help="Requirement description (instead of spec file)")
-def build(input: str, framework: str, output: str, dry_run: bool, requirement_text: str):
+def build(input: str, framework: str, output: str, dry_run: bool, requirement_text: str, llm: bool):
     """Code skeleton generation - Generate code from specification or requirement
 
     Usage:
@@ -134,6 +135,7 @@ def build(input: str, framework: str, output: str, dry_run: bool, requirement_te
         helix build SPEC.md --framework fastapi
         helix build "user login feature"
         helix build -r "user login feature"
+        helix build "user login" --llm
     """
     # Determine if input is a file or requirement text
     spec_file = ""
@@ -167,6 +169,7 @@ def build(input: str, framework: str, output: str, dry_run: bool, requirement_te
             "requirement": requirement_text,
             "framework": framework,
             "output": output,
+            "use_llm": llm,
         }
     )
 

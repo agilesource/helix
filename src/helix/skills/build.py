@@ -5,6 +5,7 @@
 """
 
 import asyncio
+import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 from pathlib import Path
@@ -12,7 +13,47 @@ from pathlib import Path
 from helix.skills.base import Skill, SkillResult, SkillConfig, SkillCategory, SkillStatus
 from helix.core.intent import Intent, IntentType
 from helix.core.context import HelixContext
+from helix.adapters.llm import get_llm_adapter, AIRequest
 from rich.console import Console
+
+
+# ============ LLM Code Generation Prompts ============
+
+LLM_CODE_SYSTEM_PROMPT = """You are an expert software engineer. Generate high-quality, production-ready code based on specifications.
+Your code should:
+1. Follow best practices and patterns
+2. Include proper error handling
+3. Have meaningful variable/function names
+4. Include docstrings and comments
+5. Be secure (no SQL injection, proper input validation)
+6. Handle edge cases
+
+Output ONLY the code, no explanations."""
+
+
+LLM_CODE_GENERATION_PROMPT = """Generate a complete {framework} application based on this specification:
+
+{spec}
+
+Requirements:
+- Use {framework} framework
+- Include proper models, routes, and business logic
+- Add input validation
+- Include error handling
+- Add docstrings
+
+Generate these files:
+1. models.py - Data models with Pydantic validation
+2. routes.py - API routes with proper HTTP methods
+3. main.py - Application entry point
+4. requirements.txt - Dependencies
+
+Output each file with format:
+```filename: <filename>
+<code here>
+```
+
+Start each file with this marker."""
 
 
 # ============ 数据模型 ============
@@ -332,6 +373,87 @@ if __name__ == "__main__":
         return type_map.get(field_type.lower(), 'str')
 
 
+# ============ LLM Code Generator ============
+
+class LLMCodeGenerator:
+    """LLM-enhanced code generator"""
+
+    def __init__(self, framework: str = "fastapi"):
+        self.framework = framework
+        self._llm_adapter = None
+
+    def _get_llm_adapter(self):
+        """Get LLM adapter (lazy load)"""
+        if self._llm_adapter is None:
+            self._llm_adapter = get_llm_adapter()
+        return self._llm_adapter
+
+    async def generate(self, spec_content: str) -> List[CodeFile]:
+        """Generate code using LLM"""
+        adapter = self._get_llm_adapter()
+
+        if not adapter or not adapter.is_available():
+            # Fallback to template generator
+            return None
+
+        prompt = LLM_CODE_GENERATION_PROMPT.format(
+            framework=self.framework,
+            spec=spec_content
+        )
+
+        response = await adapter.execute(
+            AIRequest(
+                prompt=prompt,
+                context=LLM_CODE_SYSTEM_PROMPT
+            )
+        )
+
+        if not response.success:
+            return None
+
+        return self._parse_llm_output(response.content)
+
+    def _parse_llm_output(self, content: str) -> List[CodeFile]:
+        """Parse LLM output into code files"""
+        files = []
+        current_filename = None
+        current_content = []
+
+        for line in content.split('\n'):
+            # Check for file marker
+            if '```filename:' in line.lower():
+                # Save previous file
+                if current_filename and current_content:
+                    files.append(CodeFile(
+                        path=current_filename,
+                        content='\n'.join(current_content)
+                    ))
+
+                # Extract filename
+                match = re.search(r'filename:\s*(\S+)', line, re.IGNORECASE)
+                if match:
+                    current_filename = match.group(1)
+                    current_content = []
+                continue
+
+            # Check for code block end
+            if line.strip() == '```' and current_filename:
+                continue
+
+            # Add content to current file
+            if current_filename:
+                current_content.append(line)
+
+        # Save last file
+        if current_filename and current_content:
+            files.append(CodeFile(
+                path=current_filename,
+                content='\n'.join(current_content)
+            ))
+
+        return files
+
+
 # ============ BuildSkill ============
 
 class BuildSkill(Skill):
@@ -369,6 +491,7 @@ class BuildSkill(Skill):
         requirement_text = intent.parameters.get('requirement', '')
         framework = intent.parameters.get('framework', 'fastapi')
         output_dir = intent.parameters.get('output', '.')
+        use_llm = intent.parameters.get('use_llm', False)
 
         # If requirement text provided, generate spec first
         spec_content = None
@@ -412,8 +535,25 @@ class BuildSkill(Skill):
         parser = SpecParser()
         spec = parser.parse(spec_content)
 
-        generator = CodeGenerator(framework=framework)
-        files = generator.generate(spec)
+        files = []
+        llm_used = False
+
+        # Try LLM generation if requested
+        if use_llm:
+            self.console.print("[dim]Generating code with LLM...[/dim]")
+            llm_generator = LLMCodeGenerator(framework=framework)
+            llm_files = await llm_generator.generate(spec_content)
+            if llm_files:
+                files = llm_files
+                llm_used = True
+                self.console.print("[dim]LLM code generation complete.[/dim]\n")
+            else:
+                self.console.print("[dim]LLM unavailable, using template...[/dim]\n")
+
+        # Fallback to template generator
+        if not files:
+            generator = CodeGenerator(framework=framework)
+            files = generator.generate(spec)
 
         output_path = Path(output_dir)
         generated_files = []
@@ -428,12 +568,13 @@ class BuildSkill(Skill):
 
         return SkillResult(
             success=True,
-            message=f"Generated {len(files)} files",
+            message=f"Generated {len(files)} files {'(LLM)' if llm_used else ''}",
             data={
                 "spec_title": spec.title,
                 "framework": framework,
                 "files": generated_files,
                 "requirement": requirement_text or spec_file,
+                "llm_used": llm_used,
             },
             skill_name=self.name,
             execution_time_ms=execution_time,
