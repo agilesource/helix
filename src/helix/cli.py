@@ -20,6 +20,7 @@ from helix.skills.spec import SpecSkill
 from helix.skills.build import BuildSkill
 from helix.skills.verify import VerifySkill
 from helix.skills.review import ReviewSkill
+from helix.skills.ship import ShipSkill
 from helix.skills.base import SkillConfig
 
 console = Console()
@@ -299,6 +300,77 @@ def review(base: str, path: str):
                 console.print(f"  High: [yellow]{report.get('high', 0)}[/yellow]")
                 console.print(f"  Medium: [blue]{report.get('medium', 0)}[/blue]")
                 console.print(f"  Low: {report.get('low', 0)}")
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option("--mode", "-m", default="create_pr",
+              type=click.Choice(["create_pr", "merge", "deploy", "dry_run"]),
+              help="Ship mode")
+@click.option("--base", "-b", default="main", help="Base branch")
+@click.option("--title", "-t", default="", help="PR title")
+@click.option("--body", default="", help="PR body")
+@click.option("--draft", is_flag=True, help="Create as draft PR")
+@click.option("--auto-merge", is_flag=True, help="Auto-merge after CI passes")
+@click.option("--bump-version", is_flag=True, help="Bump version before shipping")
+@click.option("--version-type", default="patch",
+              type=click.Choice(["major", "minor", "patch"]),
+              help="Version bump type")
+def ship(mode: str, base: str, title: str, body: str, draft: bool,
+         auto_merge: bool, bump_version: bool, version_type: str):
+    """Release and delivery - create PR, merge, tag, and deploy
+
+    Usage:
+        helix ship                    # Create PR
+        helix ship --mode merge       # Create and merge PR
+        helix ship --mode deploy      # Full pipeline with deploy
+        helix ship --bump-version     # Bump version and ship
+        helix ship --mode dry_run     # Preview only
+    """
+    console.print(f"\n[bold blue]⚡ Helix Ship[/bold blue] - Release & Delivery")
+    console.print(f"  Mode: {mode}")
+    console.print(f"  Base: {base}")
+    console.print(f"  Bump version: {bump_version} ({version_type})\n")
+
+    # Initialize skill
+    ship_skill = ShipSkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="ship",
+        confidence=0.9,
+        parameters={
+            "mode": mode,
+            "base": base,
+            "title": title,
+            "body": body,
+            "draft": draft,
+            "auto_merge": auto_merge,
+            "bump_version": bump_version,
+            "version_type": version_type,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(ship_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+
+            # Show logs
+            if result.data.get("logs"):
+                console.print("\n[dim]Logs:[/dim]")
+                for log in result.data["logs"][:5]:
+                    console.print(f"  [dim]{log}[/dim]")
         else:
             console.print(f"[bold red]✗[/bold red] {result.message}")
 
