@@ -1,60 +1,60 @@
-# 为 Helix 项目实现用户管理功能，包括用户注册、登录、权限管理
+# User Management Feature Implementation for Helix Project
 
-## 1. 功能概述
-为 Helix 项目实现用户管理功能，包括用户注册、登录、权限管理
+## 1. Overview
+Implement user management functionality for the Helix project, including user registration, login, and permission management.
 
-## 2. 用户故事
-作为 [用户相关人员]，我希望[登录用户]，以便[获得更好的体验/提高效率/解决什么问题]。
+## 2. User Stories
+As a [stakeholder], I want to [logged in user], so that [better experience/improve efficiency/solve a problem].
 
-## 3. 功能需求
+## 3. Functional Requirements
 
-### 3.1 核心功能 (P0)
-| # | 功能点 | 验收标准 |
-|---|--------|----------|
-| 1 | 登录用户 | 能成功执行操作并返回正确结果 |
-| 2 | 数据验证 | 输入符合规则时成功，不符合时给出明确错误 |
-| 3 | 权限控制 | 无权限用户无法执行操作 |
+### 3.1 Core Features (P0)
+| # | Feature | Acceptance Criteria |
+|---|---------|---------------------|
+| 1 | User Login | Can successfully execute operation and return correct results |
+| 2 | Data Validation | Succeeds when input conforms to rules, gives clear error when it doesn't |
+| 3 | Permission Control | Unauthorized users cannot execute operations |
 
-### 3.2 边缘功能 (P1)
-| # | 功能点 | 验收标准 |
-|---|--------|----------|
-| 1 | 批量操作 | 支持批量处理 |
-| 2 | 数据导出 | 支持导出为常见格式 |
+### 3.2 Edge Features (P1)
+| # | Feature | Acceptance Criteria |
+|---|---------|---------------------|
+| 1 | Batch Operations | Support batch processing |
+| 2 | Data Export | Support export to common formats |
 
-## 4. 非功能需求
-- **性能**: 单次操作响应时间 < 200ms
-- **安全**: 敏感数据加密传输
-- **兼容性**: 支持主流浏览器/客户端
+## 4. Non-Functional Requirements
+- **Performance**: Single operation response time < 200ms
+- **Security**: Sensitive data encrypted in transit
+- **Compatibility**: Support mainstream browsers/clients
 
-## 5. 接口设计
+## 5. API Design
 
-### 5.1 API
-| 方法 | 路径 | 输入 | 输出 |
-|------|------|------|------|
-| GET | /用户 | 分页参数 | 用户列表 |
-| GET | /用户/{id} | ID | 单个用户 |
-| POST | /用户 | 用户数据 | 创建结果 |
-| PUT | /用户/{id} | 用户数据 | 更新结果 |
-| DELETE | /用户/{id} | ID | 删除结果 |
+### 5.1 API Endpoints
+| Method | Path | Input | Output |
+|--------|------|-------|--------|
+| GET | /users | pagination params | user list |
+| GET | /users/{id} | ID | single user |
+| POST | /users | user data | creation result |
+| PUT | /users/{id} | user data | update result |
+| DELETE | /users/{id} | ID | deletion result |
 
-### 5.2 数据模型
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| id | UUID | 是 | 主键 |
-| created_at | datetime | 是 | 创建时间 |
-| updated_at | datetime | 是 | 更新时间 |
+### 5.2 Data Model
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| id | UUID | Yes | Primary key |
+| created_at | datetime | Yes | Creation timestamp |
+| updated_at | datetime | Yes | Update timestamp |
 
-## 6. 验收标准 (AC)
-- [ ] 正常情况下能完成登录操作
-- [ ] 异常输入给出清晰错误提示
-- [ ] 无权限操作被正确拒绝
-- [ ] 性能符合要求
+## 6. Acceptance Criteria (AC)
+- [ ] Login operation completes successfully under normal conditions
+- [ ] Invalid input provides clear error messages
+- [ ] Unauthorized operations are correctly rejected
+- [ ] Performance meets requirements
 
-## 7. 边界条件
-- 空数据处理
-- 并发冲突处理
-- 网络异常处理
+## 7. Edge Cases
+- Empty data handling
+- Concurrency conflict handling
+- Network exception handling
 
-## 8. 待澄清
-- target_user: [待澄清: target_user]
-- value: [待澄清: value]
+## 8. To Be Clarified
+- target_user: [To be clarified: target_user]
+- value: [To be clarified: value]
