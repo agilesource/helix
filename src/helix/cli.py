@@ -511,6 +511,47 @@ def status():
     console.print("  - Cursor (Planned)")
     console.print("  - GitHub Copilot CLI (Planned)")
     console.print("  - Gemini CLI (Planned)")
+    console.print("")
+    console.print("[bold]Plugin System:[/bold]")
+    console.print("  - v0.4.0+ supports plugins")
+
+
+@main.command()
+def plugins():
+    """List available plugins"""
+    console.print(f"\n[bold blue]⚡ Helix Plugins[/bold blue]\n")
+
+    try:
+        from helix.plugins import get_plugin_manager
+        manager = get_plugin_manager()
+        manager.initialize()
+
+        plugin_list = manager.list_plugins()
+
+        if not plugin_list:
+            console.print("[yellow]No plugins found[/yellow]")
+            console.print("Plugins can be added to the plugins/ directory")
+            return
+
+        table = Table(title="Installed Plugins")
+        table.add_column("Name", style="cyan")
+        table.add_column("Version", style="magenta")
+        table.add_column("Status", style="green")
+        table.add_column("Description")
+
+        for plugin in plugin_list:
+            status_emoji = "✅" if plugin["status"] == "active" else "❌"
+            table.add_row(
+                plugin["name"],
+                plugin["version"],
+                f"{status_emoji} {plugin['status']}",
+                plugin["description"][:50] if plugin["description"] else "",
+            )
+
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"[yellow]Plugin system not available: {e}[/yellow]")
 
 
 if __name__ == "__main__":
