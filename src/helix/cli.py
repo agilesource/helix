@@ -19,6 +19,7 @@ from helix.core.intent import Intent, IntentType
 from helix.skills.spec import SpecSkill
 from helix.skills.build import BuildSkill
 from helix.skills.verify import VerifySkill
+from helix.skills.review import ReviewSkill
 from helix.skills.base import SkillConfig
 
 console = Console()
@@ -248,6 +249,63 @@ def verify(path: str, level: str):
 
     except Exception as e:
         console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        sys.exit(1)
+
+
+@main.command()
+@click.option("--base", "-b", default="main", help="Base branch to compare against")
+@click.option("--path", "-p", default=".", help="Path to review")
+def review(base: str, path: str):
+    """Code review - Analyze changes for bugs, security issues, and quality problems
+
+    Usage:
+        helix review
+        helix review --base main
+        helix review --path src/
+    """
+    console.print(f"\n[bold blue]⚡ Helix Review[/bold blue] - Code review")
+    console.print(f"  Base branch: {base}")
+    console.print(f"  Path: {path}\n")
+
+    # Initialize skill
+    review_skill = ReviewSkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input=path,
+        confidence=0.9,
+        parameters={
+            "path": path,
+            "base": base,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(review_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+
+            # Show summary if there are findings
+            if result.data.get("review_report"):
+                report = result.data["review_report"]
+                console.print("")
+                console.print(f"[bold]Summary:[/bold]")
+                console.print(f"  Files changed: {report.get('total_files', 0)}")
+                console.print(f"  Lines changed: {report.get('total_lines_changed', 0)}")
+                console.print(f"  Critical: [red]{report.get('critical', 0)}[/red]")
+                console.print(f"  High: [yellow]{report.get('high', 0)}[/yellow]")
+                console.print(f"  Medium: [blue]{report.get('medium', 0)}[/blue]")
+                console.print(f"  Low: {report.get('low', 0)}")
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
         sys.exit(1)
 
 
