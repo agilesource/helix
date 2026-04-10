@@ -8,6 +8,7 @@ from helix.skills.build import BuildSkill
 from helix.skills.verify import VerifySkill
 from helix.skills.review import ReviewSkill
 from helix.skills.ship import ShipSkill
+from helix.skills.qa import QASkill
 
 __all__ = [
     "Skill",
@@ -20,4 +21,5 @@ __all__ = [
     "VerifySkill",
     "ReviewSkill",
     "ShipSkill",
+    "QASkill",
 ]

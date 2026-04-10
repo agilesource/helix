@@ -21,6 +21,7 @@ from helix.skills.build import BuildSkill
 from helix.skills.verify import VerifySkill
 from helix.skills.review import ReviewSkill
 from helix.skills.ship import ShipSkill
+from helix.skills.qa import QASkill
 from helix.skills.base import SkillConfig
 
 console = Console()
@@ -373,6 +374,75 @@ def ship(mode: str, base: str, title: str, body: str, draft: bool,
                     console.print(f"  [dim]{log}[/dim]")
         else:
             console.print(f"[bold red]✗[/bold red] {result.message}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option("--level", "-l", default="all",
+              type=click.Choice(["unit", "integration", "e2e", "all"]),
+              help="Test level")
+@click.option("--path", "-p", default=".", help="Test path")
+@click.option("--coverage", is_flag=True, help="Run with coverage")
+@click.option("--fail-fast", is_flag=True, help="Stop on first failure")
+def qa(level: str, path: str, coverage: bool, fail_fast: bool):
+    """Testing automation - run tests, coverage analysis, and reports
+
+    Usage:
+        helix qa
+        helix qa --level unit
+        helix qa --coverage
+        helix qa --level all --fail-fast
+    """
+    console.print(f"\n[bold blue]⚡ Helix QA[/bold blue] - Testing Automation")
+    console.print(f"  Level: {level}")
+    console.print(f"  Path: {path}")
+    console.print(f"  Coverage: {coverage}\n")
+
+    # Initialize skill
+    qa_skill = QASkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="qa",
+        confidence=0.9,
+        parameters={
+            "level": level,
+            "path": path,
+            "coverage": coverage,
+            "fail_fast": fail_fast,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(qa_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+
+            # Show summary
+            if result.data.get("test_result"):
+                tr = result.data["test_result"]
+                console.print("\n[bold]Summary:[/bold]")
+                console.print(f"  Passed:  [green]{tr['passed']}[/green]")
+                console.print(f"  Failed:  [red]{tr['failed']}[/red]")
+                console.print(f"  Duration: {tr['duration']:.2f}s")
+                if tr.get('coverage'):
+                    console.print(f"  Coverage: {tr['coverage']}%")
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+
+            # Show failed tests
+            if result.data.get("failed_tests"):
+                console.print("\n[bold]Failed Tests:[/bold]")
+                for test in result.data["failed_tests"][:3]:
+                    console.print(f"  [red]✗[/red] {test['name']}")
 
     except Exception as e:
         console.print(f"[bold red]✗[/bold red] Execution error: {e}")
