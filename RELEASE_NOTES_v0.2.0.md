@@ -1,18 +1,12 @@
-# Project Helix v0.1.0 - Initial Release
+# Project Helix v0.2.0 - Complete Workflow Release
 
 > AI Era Software Engineering Methodology - A New Paradigm
 
 ---
 
-## 🎉 Welcome to Project Helix
+## 🎉 What's New in v0.2.0
 
-We're thrilled to announce the first release of **Project Helix**, an AI agent-agnostic software engineering framework.
-
----
-
-## 🚀 What's New
-
-### Core Features
+### Core Features (Complete Workflow)
 
 | Feature | Description | Status |
 |---------|-------------|--------|
@@ -21,11 +15,12 @@ We're thrilled to announce the first release of **Project Helix**, an AI agent-a
 | `/verify` | Automated verification (static, test, acceptance) | ✅ |
 | LLM Integration | Enhanced code generation with AI | ✅ |
 
-### Technical Achievements
+### Enhancements
 
-- **i18n Complete**: Full English internationalization
-- **CLI Ready**: Command-line interface with rich output
-- **Multi-engine Support**: Architecture ready for Claude Code, OpenClaw, Cursor, and more
+- **Full i18n**: Complete English internationalization
+- **Project Helix Branding**: Official project code name
+- **Peter Cheng**: Sole author attribution
+- **32+ Tests**: Comprehensive test coverage
 
 ---
 
@@ -58,6 +53,13 @@ cd my-project
 helix verify
 ```
 
+Or use natural language:
+
+```bash
+helix build "user login feature"
+cd output && helix verify
+```
+
 ---
 
 ## 🏗️ Architecture
@@ -77,29 +79,34 @@ helix/
 
 ---
 
-## 🤝 Join Us
+## 📝 Changelog (since v0.1.0)
 
-- **Website**: (Coming Soon)
-- **GitHub**: https://github.com/opensourceclaw/helix
-- **License**: Apache 2.0
-
----
-
-## 📝 Changelog
-
-- All source code internationalized to English
+- Full English internationalization across all modules
 - Project Helix branding applied
-- Author updated to Peter Cheng
-- CLI status command enhanced
+- CLI status and help enhanced
+- Author updated to Peter Cheng only
+- Release notes added
 
 ---
 
-## 🔜 What's Next
+## 🔜 What's Next (v0.3.0)
 
-- More skill integrations
+- More skill integrations (/review, /ship, /qa)
 - Enhanced LLM capabilities
 - Plugin system
 - Documentation expansion
+- CI/CD integration
+
+---
+
+## 🤝 Project Helix
+
+**Project Helix** is a human-AI co-creation project, built through the collaboration of:
+
+- **Peter Cheng** - Human architect and decision maker
+- **Jarvis** - AI coding assistant
+
+This represents a new paradigm of software engineering in the AI era.
 
 ---
 
