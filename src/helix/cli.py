@@ -22,6 +22,8 @@ from helix.skills.verify import VerifySkill
 from helix.skills.review import ReviewSkill
 from helix.skills.ship import ShipSkill
 from helix.skills.qa import QASkill
+from helix.skills.audit import AuditSkill
+from helix.skills.gate import GateSkill
 from helix.skills.base import SkillConfig
 
 console = Console()
@@ -443,6 +445,111 @@ def qa(level: str, path: str, coverage: bool, fail_fast: bool):
                 console.print("\n[bold]Failed Tests:[/bold]")
                 for test in result.data["failed_tests"][:3]:
                     console.print(f"  [red]✗[/red] {test['name']}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option("--security/--no-security", default=True, help="Run security audit")
+@click.option("--dependencies/--no-dependencies", default=True, help="Run dependency audit")
+@click.option("--architecture/--no-architecture", default=True, help="Run architecture audit")
+@click.option("--compliance/--no-compliance", default=False, help="Run compliance audit")
+@click.option("--path", "-p", default=".", help="Path to audit")
+def audit(security: bool, dependencies: bool, architecture: bool, compliance: bool, path: str):
+    """Security and architecture audit - vulnerability scanning, dependency check
+
+    Usage:
+        helix audit
+        helix audit --security
+        helix audit --dependencies
+        helix audit --full
+    """
+    console.print(f"\n[bold blue]⚡ Helix Audit[/bold blue] - Security & Architecture Audit")
+    console.print(f"  Security: {security}")
+    console.print(f"  Dependencies: {dependencies}")
+    console.print(f"  Architecture: {architecture}")
+    console.print(f"  Compliance: {compliance}\n")
+
+    # Initialize skill
+    audit_skill = AuditSkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="audit",
+        confidence=0.9,
+        parameters={
+            "security": security,
+            "dependencies": dependencies,
+            "architecture": architecture,
+            "compliance": compliance,
+            "path": path,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(audit_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option("--strict", is_flag=True, help="Strict mode - fail on warnings")
+@click.option("--security/--no-security", default=True, help="Run security gate")
+@click.option("--min-coverage", default=70.0, help="Minimum coverage percentage")
+@click.option("--bypass", default="", help="Bypass gate with reason")
+def gate(strict: bool, security: bool, min_coverage: float, bypass: str):
+    """Quality gate - enforce quality thresholds before merge/deploy
+
+    Usage:
+        helix gate
+        helix gate --strict
+        helix gate --min-coverage 80
+        helix gate --bypass "Critical security fix"
+    """
+    console.print(f"\n[bold blue]⚡ Helix Gate[/bold blue] - Quality Gate")
+    console.print(f"  Strict: {strict}")
+    console.print(f"  Security: {security}")
+    console.print(f"  Min Coverage: {min_coverage}%\n")
+
+    # Initialize skill
+    gate_skill = GateSkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="gate",
+        confidence=0.9,
+        parameters={
+            "strict": strict,
+            "security": security,
+            "min_coverage": min_coverage,
+            "bypass": bypass,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(gate_skill.execute(intent, None))
+
+        console.print(result.message)
+
+        if not result.success:
+            sys.exit(1)
 
     except Exception as e:
         console.print(f"[bold red]✗[/bold red] Execution error: {e}")

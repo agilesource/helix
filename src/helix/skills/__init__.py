@@ -9,6 +9,8 @@ from helix.skills.verify import VerifySkill
 from helix.skills.review import ReviewSkill
 from helix.skills.ship import ShipSkill
 from helix.skills.qa import QASkill
+from helix.skills.audit import AuditSkill
+from helix.skills.gate import GateSkill
 
 __all__ = [
     "Skill",
@@ -22,4 +24,6 @@ __all__ = [
     "ReviewSkill",
     "ShipSkill",
     "QASkill",
+    "AuditSkill",
+    "GateSkill",
 ]
