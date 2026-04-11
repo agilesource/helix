@@ -841,14 +841,14 @@ def list_skills():
     table.add_column("Description")
 
     skills = [
-        ("spec", "Execution Engine", "In Design", "Spec - Requirement to specification"),
-        ("build", "Execution Engine", "In Design", "Build - Specification to code"),
-        ("verify", "Execution Engine", "In Design", "Verify - Automated verification"),
-        ("ship", "Execution Engine", "In Design", "Ship - Release & delivery"),
+        ("spec", "Execution Engine", "Stable ✅", "Spec - Requirement to specification"),
+        ("build", "Execution Engine", "Stable ✅", "Build - Specification to code"),
+        ("verify", "Execution Engine", "Stable ✅", "Verify - Automated verification"),
+        ("ship", "Execution Engine", "Stable ✅", "Ship - Release & delivery"),
         ("review", "Quality Assurance", "Stable", "Review - Code review"),
-        ("test", "Quality Assurance", "In Design", "Test - Intelligent testing"),
-        ("audit", "Quality Assurance", "In Design", "Audit - Security audit"),
-        ("gate", "Quality Assurance", "In Design", "Gate - Quality gate"),
+        ("test", "Quality Assurance", "Stable ✅", "Test - Intelligent testing"),
+        ("audit", "Quality Assurance", "Stable ✅", "Audit - Security audit"),
+        ("gate", "Quality Assurance", "Stable ✅", "Gate - Quality gate"),
         ("browse", "Infrastructure", "Stable", "Browse - Browser control"),
         ("design", "Infrastructure", "Stable", "Design - Design generation"),
         ("learn", "Infrastructure", "Stable", "Learn - Continuous learning"),
@@ -866,18 +866,17 @@ def status():
     """View Project Helix status"""
     console.print(f"[bold]Project:[/bold] Helix")
     console.print(f"[bold]Version:[/bold] {__version__}")
-    console.print("[bold]Status:[/bold] Alpha")
+    console.print("[bold]Status:[/bold] ✅ Stable")
     console.print("")
-    console.print("[bold]Supported Engines:[/bold]")
-    console.print("  - Claude Code (In Development)")
-    console.print("  - OpenClaw (Planned)")
-    console.print("  - OpenCode (Planned)")
-    console.print("  - Cursor (Planned)")
-    console.print("  - GitHub Copilot CLI (Planned)")
-    console.print("  - Gemini CLI (Planned)")
+    console.print("[bold]Architecture:[/bold]")
+    console.print("  - L4: Meta-Methodology + Platform")
+    console.print("  - L3: Execution Engine + AI Engine")
+    console.print("  - L2: Quality Assurance")
+    console.print("  - L1: Infrastructure")
     console.print("")
-    console.print("[bold]Plugin System:[/bold]")
-    console.print("  - v0.4.0+ supports plugins")
+    console.print("[bold]Skills:[/bold]")
+    console.print("  - 12 skills across 4 layers")
+    console.print("  - All skills operational")
 
 
 @main.command()

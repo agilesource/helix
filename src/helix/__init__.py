@@ -4,8 +4,9 @@ Helix - AI Era Software Engineering Methodology New Paradigm
 Core module imports
 """
 
-__version__ = "0.8.0"
+__version__ = "1.0.0"
 __author__ = "Peter"
+__status__ = "Stable"
 
 from helix.core.orchestrator import HelixOrchestrator
 from helix.core.context import HelixContext
