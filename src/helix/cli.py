@@ -559,6 +559,263 @@ def gate(strict: bool, security: bool, min_coverage: float, bypass: str):
 
 
 @main.command()
+@click.argument("url", required=False)
+@click.option("--screenshot", is_flag=True, help="Take screenshot")
+@click.option("--interactive", is_flag=True, help="Interactive mode")
+@click.option("--action", default="navigate", help="Browser action")
+def browse(url: str, screenshot: bool, interactive: bool, action: str):
+    """Browser control - E2E testing, visual regression, site verification
+
+    Usage:
+        helix browse https://example.com
+        helix browse https://example.com --screenshot
+    """
+    from helix.skills.browse import BrowseSkill
+
+    console.print(f"\n[bold blue]⚡ Helix Browse[/bold blue] - Browser Control")
+    console.print(f"  URL: {url or 'not provided'}")
+    console.print(f"  Screenshot: {screenshot}")
+    console.print(f"  Interactive: {interactive}\n")
+
+    if not url:
+        console.print("[yellow]URL is required[/yellow]")
+        console.print("Usage: helix browse <url>")
+        sys.exit(1)
+
+    # Initialize skill
+    browse_skill = BrowseSkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="browse",
+        confidence=0.9,
+        parameters={
+            "url": url,
+            "action": action,
+            "screenshot": screenshot,
+            "interactive": interactive,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(browse_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.option("--brand", default="", help="Brand name")
+@click.option("--template", default="default", help="Design template")
+@click.option("--output", default="DESIGN.md", help="Output file")
+def design(brand: str, template: str, output: str):
+    """Design generation - design system, typography, color, layout
+
+    Usage:
+        helix design --brand "My Brand"
+        helix design --template minimal
+        helix design --output design.md
+    """
+    from helix.skills.design import DesignSkill
+
+    console.print(f"\n[bold blue]⚡ Helix Design[/bold blue] - Design Generation")
+    console.print(f"  Brand: {brand or 'default'}")
+    console.print(f"  Template: {template}")
+    console.print(f"  Output: {output}\n")
+
+    # Initialize skill
+    design_skill = DesignSkill()
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="design",
+        confidence=0.9,
+        parameters={
+            "brand": brand,
+            "template": template,
+            "output": output,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(design_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("command", default="show", required=False)
+@click.option("--query", "-q", default="", help="Search query")
+@click.option("--key", "-k", default="", help="Learning key")
+@click.option("--insight", "-i", default="", help="Learning insight")
+@click.option("--type", "-t", default="pattern", help="Learning type")
+def learn(command: str, query: str, key: str, insight: str, type: str):
+    """Continuous learning - project knowledge, learnings, patterns
+
+    Usage:
+        helix learn
+        helix learn search --query <keyword>
+        helix learn add --key <name> --insight <description>
+        helix learn stats
+    """
+    from helix.skills.learn import LearnSkill
+
+    console.print(f"\n[bold blue]⚡ Helix Learn[/bold blue] - Continuous Learning")
+    console.print(f"  Command: {command}")
+    console.print(f"  Query: {query or 'none'}\n")
+
+    # Initialize skill
+    learn_skill = LearnSkill()
+
+    # Map CLI command to skill command
+    command_map = {
+        "search": "search",
+        "stats": "stats",
+        "add": "add",
+        "show": "show",
+    }
+    skill_command = command_map.get(command, "show")
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="learn",
+        confidence=0.9,
+        parameters={
+            "command": skill_command,
+            "query": query,
+            "key": key,
+            "insight": insight,
+            "type": type,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(learn_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+            # Show data if available
+            if result.data:
+                if "learnings" in result.data:
+                    for learning in result.data.get("learnings", [])[:10]:
+                        console.print(f"  • {learning.get('key')}: {learning.get('insight', '')[:50]}...")
+                if "results" in result.data:
+                    console.print(result.data["results"])
+                if "total" in result.data:
+                    console.print(f"  Total: {result.data['total']}")
+                if "by_type" in result.data:
+                    for t, count in result.data["by_type"].items():
+                        console.print(f"  {t}: {count}")
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("command", default="status", required=False)
+@click.argument("label", default="", required=False)
+@click.option("--id", "-i", default="", help="Checkpoint ID")
+def checkpoint(command: str, label: str, id: str):
+    """State persistence - save/restore, cross-session continuity
+
+    Usage:
+        helix checkpoint save "working on feature X"
+        helix checkpoint list
+        helix checkpoint restore <id>
+        helix checkpoint status
+    """
+    from helix.skills.checkpoint import CheckpointSkill
+
+    console.print(f"\n[bold blue]⚡ Helix Checkpoint[/bold blue] - State Persistence")
+    console.print(f"  Command: {command}")
+    console.print(f"  Label: {label or 'none'}\n")
+
+    # Initialize skill
+    checkpoint_skill = CheckpointSkill()
+
+    # Map CLI command
+    command_map = {
+        "save": "save",
+        "list": "list",
+        "restore": "restore",
+        "status": "status",
+    }
+    skill_command = command_map.get(command, "status")
+
+    # Create intent
+    intent = Intent(
+        type=IntentType.BUILD,
+        raw_input="checkpoint",
+        confidence=0.9,
+        parameters={
+            "command": skill_command,
+            "label": label,
+            "id": id,
+        }
+    )
+
+    # Execute skill
+    try:
+        result = asyncio.run(checkpoint_skill.execute(intent, None))
+
+        if result.success:
+            console.print(result.message)
+            if result.data:
+                if "checkpoints" in result.data:
+                    for cp in result.data["checkpoints"]:
+                        console.print(f"  • {cp.get('id')}: {cp.get('label')} ({cp.get('branch')})")
+                if "latest" in result.data and result.data["latest"]:
+                    latest = result.data["latest"]
+                    console.print(f"\n[green]Latest checkpoint:[/green]")
+                    console.print(f"  ID: {latest.get('id')}")
+                    console.print(f"  Label: {latest.get('label')}")
+                    console.print(f"  Branch: {latest.get('branch')}")
+                    console.print(f"  Commit: {latest.get('commit')}")
+                if "total" in result.data:
+                    console.print(f"  Total: {result.data['total']}")
+        else:
+            console.print(f"[bold red]✗[/bold red] {result.message}")
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[bold red]✗[/bold red] Execution error: {e}")
+        import traceback
+        console.print(f"[dim]{traceback.format_exc()}[/dim]")
+        sys.exit(1)
+
+
+@main.command()
 @click.argument("input_text")
 def classify(input_text: str):
     """Test requirement type recognition"""
@@ -659,6 +916,64 @@ def plugins():
 
     except Exception as e:
         console.print(f"[yellow]Plugin system not available: {e}[/yellow]")
+
+
+@main.command()
+@click.option("--host", default="0.0.0.0", help="Host to bind to")
+@click.option("--port", default=8080, help="Port to bind to")
+def serve(host: str, port: int):
+    """Start Helix API server
+
+    Usage:
+        helix serve
+        helix serve --port 3000
+    """
+    console.print(f"\n[bold blue]⚡ Helix API Server[/bold blue]")
+    console.print(f"  Host: {host}")
+    console.print(f"  Port: {port}")
+    console.print(f"  Docs: http://{host}:{port}/docs\n")
+
+    try:
+        from helix.api import run_server
+        run_server(host=host, port=port)
+    except ImportError:
+        console.print("[red]Error: fastapi and uvicorn required[/red]")
+        console.print("[dim]Install with: pip install helix[api][/dim]")
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("platform", default="github", type=click.Choice(["github", "gitlab"]))
+@click.option("--path", "-p", default=None, help="Output path")
+@click.option("--audit/--no-audit", default=True, help="Include security audit")
+@click.option("--gate/--no-gate", default=True, help="Include quality gate")
+def ci(platform: str, path: str, audit: bool, gate: bool):
+    """Generate CI/CD configuration
+
+    Usage:
+        helix ci github
+        helix ci gitlab
+    """
+    console.print(f"\n[bold blue]⚡ Helix CI/CD Setup[/bold blue]")
+    console.print(f"  Platform: {platform}")
+    console.print(f"  Audit: {audit}")
+    console.print(f"  Gate: {gate}\n")
+
+    try:
+        if platform == "github":
+            from helix.ci import create_github_actions_file
+            output_path = path or ".github/workflows/helix.yml"
+            create_github_actions_file(output_path)
+        else:
+            from helix.ci import create_gitlab_ci_file
+            output_path = path or ".gitlab-ci.yml"
+            create_gitlab_ci_file(output_path)
+
+        console.print(f"[green]✓ Created CI/CD configuration: {output_path}[/green]")
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
