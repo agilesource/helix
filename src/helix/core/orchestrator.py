@@ -165,6 +165,7 @@ class HelixOrchestrator:
             IntentType.TEST: "test",
             IntentType.AUDIT: "audit",
             IntentType.GATE: "gate",
+            IntentType.BROWSE: "browse",
             IntentType.DESIGN: "design",
             IntentType.LEARN: "learn",
             IntentType.CHECKPOINT: "checkpoint",

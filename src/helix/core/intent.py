@@ -23,6 +23,7 @@ class IntentType(Enum):
     GATE = "gate"  # Quality gate
 
     # Infrastructure layer
+    BROWSE = "browse"  # Browser control
     DESIGN = "design"  # Design generation
     LEARN = "learn"  # Continuous learning
     CHECKPOINT = "checkpoint"  # State save

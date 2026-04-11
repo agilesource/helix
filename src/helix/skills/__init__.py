@@ -11,6 +11,10 @@ from helix.skills.ship import ShipSkill
 from helix.skills.qa import QASkill
 from helix.skills.audit import AuditSkill
 from helix.skills.gate import GateSkill
+from helix.skills.browse import BrowseSkill
+from helix.skills.design import DesignSkill
+from helix.skills.learn import LearnSkill
+from helix.skills.checkpoint import CheckpointSkill
 
 __all__ = [
     "Skill",
@@ -26,4 +30,8 @@ __all__ = [
     "QASkill",
     "AuditSkill",
     "GateSkill",
+    "BrowseSkill",
+    "DesignSkill",
+    "LearnSkill",
+    "CheckpointSkill",
 ]
