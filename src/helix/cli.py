@@ -976,5 +976,65 @@ def ci(platform: str, path: str, audit: bool, gate: bool):
         sys.exit(1)
 
 
+@main.command()
+@click.option("--output", "-o", default=".", help="Output directory")
+def docs(output: str):
+    """Generate project documentation
+
+    Usage:
+        helix docs
+        helix docs --output ./docs
+    """
+    console.print(f"\n[bold blue]⚡ Helix Documentation[/bold blue]")
+    console.print(f"  Output: {output}\n")
+
+    try:
+        from helix.docs import run_docs_generator
+        run_docs_generator(output)
+        console.print(f"[green]✓ Documentation generated successfully[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
+
+
+@main.command()
+def metrics():
+    """Show performance metrics
+
+    Usage:
+        helix metrics
+    """
+    console.print(f"\n[bold blue]⚡ Helix Performance Metrics[/bold blue]\n")
+
+    try:
+        from helix.monitoring import get_performance_monitor
+
+        monitor = get_performance_monitor()
+        metrics = monitor.get_metrics()
+        health = monitor.get_health_status()
+
+        console.print(f"[bold]Health Status:[/bold] {health['status'].upper()}")
+        console.print(f"[bold]Uptime:[/bold] {health['uptime_seconds']:.1f}s")
+        console.print("")
+        console.print(f"[bold]Total Requests:[/bold] {metrics.total_requests}")
+        console.print(f"[bold]Success Rate:[/bold] {health['success_rate']*100:.1f}%")
+        console.print(f"[bold]Avg Latency:[/bold] {metrics.avg_latency_ms:.1f}ms")
+        console.print(f"[bold]P95 Latency:[/bold] {metrics.p95_latency_ms:.1f}ms")
+        console.print(f"[bold]P99 Latency:[/bold] {metrics.p99_latency_ms:.1f}ms")
+
+        # Show per-skill metrics
+        skill_metrics = monitor.get_all_skill_metrics()
+        if skill_metrics:
+            console.print("\n[bold]Per-Skill Metrics:[/bold]")
+            for sm in skill_metrics:
+                if sm:
+                    console.print(f"  {sm['skill']}: {sm['total_requests']} requests, "
+                                  f"{sm['avg_latency_ms']:.1f}ms avg")
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        console.print("[yellow]Run some skills first to collect metrics[/yellow]")
+
+
 if __name__ == "__main__":
     main()
