@@ -46,7 +46,7 @@ class TestCLIHelp:
         )
         assert result.returncode == 0
         assert "Helix" in result.stdout
-        assert "RC" in result.stdout
+        assert "Stable" in result.stdout
 
 
 class TestCLIVersion:
@@ -59,7 +59,7 @@ class TestCLIVersion:
             capture_output=True,
             text=True,
         )
-        assert "1.0.0-rc" in result.stdout
+        assert "1.0.0" in result.stdout
 
 
 class TestSkillCommands:
