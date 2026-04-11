@@ -29,7 +29,7 @@ class AIResponse:
     content: str
     success: bool
     error: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class AIAdapter(ABC):
@@ -56,7 +56,7 @@ class ClaudeCodeAdapter(AIAdapter):
 
     async def execute(self, request: AIRequest) -> AIResponse:
         # TODO: Implement Claude Code invocation
-        pass
+        raise NotImplementedError("Claude Code adapter not implemented")
 
     def is_available(self) -> bool:
         # TODO: Check if CLI is available
@@ -71,7 +71,7 @@ class OpenClawAdapter(AIAdapter):
 
     async def execute(self, request: AIRequest) -> AIResponse:
         # TODO: Implement OpenClaw invocation
-        pass
+        raise NotImplementedError("OpenClaw adapter not implemented")
 
     def is_available(self) -> bool:
         # TODO: Check if CLI is available

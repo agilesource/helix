@@ -4,7 +4,7 @@ Helix - AI Era Software Engineering Methodology New Paradigm
 Core module imports
 """
 
-__version__ = "1.0.0-rc.1"
+__version__ = "1.0.0-rc.2"
 __author__ = "Peter"
 __status__ = "RC"
 

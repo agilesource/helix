@@ -54,7 +54,7 @@ class LearnSkill(Skill):
 
     def __init__(self, config: Optional[SkillConfig] = None):
         super().__init__(config)
-        self.learnings_file = None
+        self.learnings_file: Optional[Path] = None
         self._initialize_storage()
 
     def _do_initialize(self) -> None:

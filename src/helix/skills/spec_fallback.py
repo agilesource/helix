@@ -7,7 +7,7 @@ Original rule-based specification generator (used when LLM unavailable)
 import asyncio
 import re
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from enum import Enum
 
 from helix.skills.base import Skill, SkillResult, SkillConfig, SkillCategory, SkillStatus
@@ -219,7 +219,7 @@ class SpecSkillFallback(Skill):
     def _generate_spec(
         self,
         user_input: str,
-        req_type: any,  # Accept both string and enum
+        req_type: Any,  # Accept both string and enum
         entities: ExtractedEntities,
         clarifications: Dict[str, str]
     ) -> str:
