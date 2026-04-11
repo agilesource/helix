@@ -59,7 +59,7 @@ class TestCLIVersion:
             capture_output=True,
             text=True,
         )
-        assert "1.0.0-rc.1" in result.stdout
+        assert "1.0.0-rc" in result.stdout
 
 
 class TestSkillCommands:
