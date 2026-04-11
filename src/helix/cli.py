@@ -841,18 +841,18 @@ def list_skills():
     table.add_column("Description")
 
     skills = [
-        ("spec", "Execution Engine", "Stable ✅", "Spec - Requirement to specification"),
-        ("build", "Execution Engine", "Stable ✅", "Build - Specification to code"),
-        ("verify", "Execution Engine", "Stable ✅", "Verify - Automated verification"),
-        ("ship", "Execution Engine", "Stable ✅", "Ship - Release & delivery"),
-        ("review", "Quality Assurance", "Stable", "Review - Code review"),
-        ("test", "Quality Assurance", "Stable ✅", "Test - Intelligent testing"),
-        ("audit", "Quality Assurance", "Stable ✅", "Audit - Security audit"),
-        ("gate", "Quality Assurance", "Stable ✅", "Gate - Quality gate"),
-        ("browse", "Infrastructure", "Stable", "Browse - Browser control"),
-        ("design", "Infrastructure", "Stable", "Design - Design generation"),
-        ("learn", "Infrastructure", "Stable", "Learn - Continuous learning"),
-        ("checkpoint", "Infrastructure", "Stable", "Checkpoint - State persistence"),
+        ("spec", "Execution Engine", "Beta 🧪", "Spec - Requirement to specification"),
+        ("build", "Execution Engine", "Beta 🧪", "Build - Specification to code"),
+        ("verify", "Execution Engine", "Beta 🧪", "Verify - Automated verification"),
+        ("ship", "Execution Engine", "Beta 🧪", "Ship - Release & delivery"),
+        ("review", "Quality Assurance", "Beta 🧪", "Review - Code review"),
+        ("test", "Quality Assurance", "Beta 🧪", "Test - Intelligent testing"),
+        ("audit", "Quality Assurance", "Beta 🧪", "Audit - Security audit"),
+        ("gate", "Quality Assurance", "Beta 🧪", "Gate - Quality gate"),
+        ("browse", "Infrastructure", "Beta 🧪", "Browse - Browser control"),
+        ("design", "Infrastructure", "Beta 🧪", "Design - Design generation"),
+        ("learn", "Infrastructure", "Beta 🧪", "Learn - Continuous learning"),
+        ("checkpoint", "Infrastructure", "Beta 🧪", "Checkpoint - State persistence"),
     ]
 
     for name, category, status, desc in skills:
@@ -866,7 +866,7 @@ def status():
     """View Project Helix status"""
     console.print(f"[bold]Project:[/bold] Helix")
     console.print(f"[bold]Version:[/bold] {__version__}")
-    console.print("[bold]Status:[/bold] ✅ Stable")
+    console.print("[bold]Status:[/bold] 🧪 Beta (Pre-release)")
     console.print("")
     console.print("[bold]Architecture:[/bold]")
     console.print("  - L4: Meta-Methodology + Platform")
