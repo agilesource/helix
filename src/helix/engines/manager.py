@@ -74,7 +74,7 @@ class AIEngineManager:
         if self._default_engine is None or config.priority > self._engines[self._default_engine].priority:
             self._default_engine = config.name
 
-    def get_engine(self, name: str = None) -> Optional[EngineConfig]:
+    def get_engine(self, name: Optional[str] = None) -> Optional[EngineConfig]:
         """Get engine by name or get best available"""
         if name and name in self._engines:
             return self._engines[name]
@@ -107,7 +107,7 @@ class AIEngineManager:
     async def execute(
         self,
         request: AIRequest,
-        engine_name: str = None,
+        engine_name: Optional[str] = None,
         fallback: bool = True
     ) -> AIResponse:
         """Execute request with engine selection"""

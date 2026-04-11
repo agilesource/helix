@@ -104,7 +104,7 @@ class HelixContext:
         )
         self.interactions.append(interaction)
 
-    def add_memory(self, memory_type: str, content: str, tags: List[str] = None) -> None:
+    def add_memory(self, memory_type: str, content: str, tags: Optional[List[str]] = None) -> None:
         """Add memory"""
         self.memories.append({
             "type": memory_type,
