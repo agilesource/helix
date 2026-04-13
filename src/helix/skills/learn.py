@@ -247,7 +247,7 @@ class LearnSkill(Skill):
 
         return {
             "success": True,
-            "message": f"Recent {len(react)} learnings (total: {len(learnings)})",
+            "message": f"Recent {len(recent)} learnings (total: {len(learnings)})",
             "data": {
                 "learnings": [asdict(l) for l in recent],
                 "total": len(learnings)

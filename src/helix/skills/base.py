@@ -24,6 +24,7 @@ class SkillStatus(Enum):
     """Skill Status"""
 
     DRAFT = "draft"
+    BETA = "beta"
     EXPERIMENTAL = "experimental"
     STABLE = "stable"
     DEPRECATED = "deprecated"

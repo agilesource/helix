@@ -118,3 +118,83 @@ class TestGetLLMAdapter:
 
         del os.environ["ANTHROPIC_API_KEY"]
         del os.environ["OPENAI_API_KEY"]
+
+    def test_get_llm_adapter_fallback_to_openai(self):
+        """Test fallback to OpenAI when Anthropic unavailable"""
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+        os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
+        os.environ["OPENAI_API_KEY"] = "test"
+
+        adapter = get_llm_adapter()
+        assert isinstance(adapter, OpenAIAdapter)
+
+        del os.environ["OPENAI_API_KEY"]
+
+    def test_get_llm_adapter_none_available(self):
+        """Test returns None when no adapter available"""
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+        os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
+        os.environ.pop("OPENAI_API_KEY", None)
+
+        adapter = get_llm_adapter()
+        assert adapter is None
+
+
+class TestAnthropicAdapterExecute:
+    """Test AnthropicAdapter async execution"""
+
+    @pytest.mark.asyncio
+    async def test_execute_no_api_key(self):
+        """Test execute fails without API key"""
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+        os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
+
+        adapter = AnthropicAdapter()
+        request = AIRequest(prompt="test")
+
+        response = await adapter.execute(request)
+        assert response.success is False
+        assert "not set" in response.error.lower()
+
+    @pytest.mark.asyncio
+    async def test_execute_import_error(self):
+        """Test execute handles missing aiohttp"""
+        import sys
+        import importlib
+
+        # Mock aiohttp as not installed by temporarily modifying import
+        adapter = AnthropicAdapter(api_key="test-key")
+
+        # Patch the import to raise ImportError
+        import helix.adapters.llm as llm_module
+        original_import = __builtins__["__import__"]
+
+        def mock_import(name, *args, **kwargs):
+            if name == "aiohttp":
+                raise ImportError("No module named 'aiohttp'")
+            return original_import(name, *args, **kwargs)
+
+        try:
+            __builtins__["__import__"] = mock_import
+            request = AIRequest(prompt="test")
+            response = await adapter.execute(request)
+            assert response.success is False
+            assert "aiohttp" in response.error
+        finally:
+            __builtins__["__import__"] = original_import
+
+
+class TestOpenAIAdapterExecute:
+    """Test OpenAIAdapter async execution"""
+
+    @pytest.mark.asyncio
+    async def test_execute_no_api_key(self):
+        """Test execute fails without API key"""
+        os.environ.pop("OPENAI_API_KEY", None)
+
+        adapter = OpenAIAdapter()
+        request = AIRequest(prompt="test")
+
+        response = await adapter.execute(request)
+        assert response.success is False
+        assert "not set" in response.error.lower()

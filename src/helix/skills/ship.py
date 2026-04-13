@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 
 from helix.skills.base import (
     Skill, SkillResult, SkillConfig, SkillCategory, SkillStatus
@@ -24,7 +25,7 @@ from helix.core.intent import Intent, IntentType
 from helix.core.context import HelixContext
 
 
-class ShipMode:
+class ShipMode(Enum):
     """Ship operation modes"""
 
     CREATE_PR = "create_pr"       # Create PR only
