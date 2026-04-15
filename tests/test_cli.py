@@ -151,3 +151,103 @@ class TestShipCommand:
         result = runner.invoke(ship, ["--help"])
         assert result.exit_code == 0
         assert "ship" in result.output.lower()
+
+
+class TestAuditCommand:
+    """Test audit command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_audit_help(self, runner):
+        """Test audit --help"""
+        from helix.cli import audit
+        result = runner.invoke(audit, ["--help"])
+        assert result.exit_code == 0
+        assert "audit" in result.output.lower()
+
+
+class TestGateCommand:
+    """Test gate command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_gate_help(self, runner):
+        """Test gate --help"""
+        from helix.cli import gate
+        result = runner.invoke(gate, ["--help"])
+        assert result.exit_code == 0
+        assert "gate" in result.output.lower()
+
+
+class TestLearnCommand:
+    """Test learn command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_learn_help(self, runner):
+        """Test learn --help"""
+        from helix.cli import learn
+        result = runner.invoke(learn, ["--help"])
+        assert result.exit_code == 0
+
+
+class TestCheckpointCommand:
+    """Test checkpoint command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_checkpoint_help(self, runner):
+        """Test checkpoint --help"""
+        from helix.cli import checkpoint
+        result = runner.invoke(checkpoint, ["--help"])
+        assert result.exit_code == 0
+
+
+class TestBrowseCommand:
+    """Test browse command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_browse_help(self, runner):
+        """Test browse --help"""
+        from helix.cli import browse
+        result = runner.invoke(browse, ["--help"])
+        assert result.exit_code == 0
+
+
+class TestDesignCommand:
+    """Test design command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_design_help(self, runner):
+        """Test design --help"""
+        from helix.cli import design
+        result = runner.invoke(design, ["--help"])
+        assert result.exit_code == 0
+
+
+class TestQaCommand:
+    """Test qa command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_qa_help(self, runner):
+        """Test qa --help"""
+        from helix.cli import qa
+        result = runner.invoke(qa, ["--help"])
+        assert result.exit_code == 0

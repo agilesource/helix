@@ -42,6 +42,90 @@ class TestHelixContext:
         context = HelixContext()
         assert context.session_state == SessionState.IDLE
 
+    def test_context_start_session(self):
+        """Test starting a session"""
+        from helix.core.context import SessionState
+        context = HelixContext()
+        context.start_session("/test/path")
+        assert context.project is not None
+        assert context.project.project_path == "/test/path"
+        assert context.session_state == SessionState.RUNNING
+
+    def test_context_add_memory(self):
+        """Test adding memory"""
+        context = HelixContext()
+        context.add_memory("test", "test content", ["tag1", "tag2"])
+        assert len(context.memories) == 1
+        assert context.memories[0]["type"] == "test"
+        assert context.memories[0]["content"] == "test content"
+        assert "tag1" in context.memories[0]["tags"]
+
+    def test_context_get_recent_interactions(self):
+        """Test getting recent interactions"""
+        context = HelixContext()
+        interactions = context.get_recent_interactions(5)
+        assert isinstance(interactions, list)
+
+    def test_context_get_summary(self):
+        """Test getting context summary"""
+        context = HelixContext()
+        summary = context.get_summary()
+        assert "session_id" in summary
+        assert "state" in summary
+        assert "duration_seconds" in summary
+
+
+class TestSessionState:
+    """Test SessionState enum"""
+
+    def test_session_state_values(self):
+        """Test SessionState enum values"""
+        from helix.core.context import SessionState
+        assert SessionState.IDLE.value == "idle"
+        assert SessionState.RUNNING.value == "running"
+        assert SessionState.WAITING_CONFIRMATION.value == "waiting_confirmation"
+        assert SessionState.COMPLETED.value == "completed"
+        assert SessionState.ERROR.value == "error"
+
+
+class TestProjectState:
+    """Test ProjectState dataclass"""
+
+    def test_project_state_creation(self):
+        """Test ProjectState creation"""
+        from helix.core.context import ProjectState
+        project = ProjectState(project_path="/test", project_type="python")
+        assert project.project_path == "/test"
+        assert project.project_type == "python"
+        assert project.framework is None
+        assert project.current_branch is None
+        assert project.is_dirty is False
+        assert project.lines_of_code == 0
+        assert project.test_coverage == 0.0
+        assert project.gate_level == 0
+
+    def test_project_state_with_optional(self):
+        """Test ProjectState with optional fields"""
+        from helix.core.context import ProjectState
+        project = ProjectState(
+            project_path="/test",
+            project_type="python",
+            framework="fastapi",
+            current_branch="main",
+            is_dirty=True,
+            lines_of_code=1000,
+            test_coverage=85.5,
+            last_review_score=9.5,
+            gate_level=2
+        )
+        assert project.framework == "fastapi"
+        assert project.current_branch == "main"
+        assert project.is_dirty is True
+        assert project.lines_of_code == 1000
+        assert project.test_coverage == 85.5
+        assert project.last_review_score == 9.5
+        assert project.gate_level == 2
+
 
 class TestHelixOrchestrator:
     """Test HelixOrchestrator"""
