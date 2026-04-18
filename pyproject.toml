@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "helix-ai"
-version = "0.4.46"
+version = "0.4.48"
 description = "AI Era Software Engineering Methodology - A New Paradigm"
 readme = "README.md"
 license = {text = "Apache-2.0"}
