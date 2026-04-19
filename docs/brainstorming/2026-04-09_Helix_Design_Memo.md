@@ -219,7 +219,7 @@ helix/
 ## 7. Reference Resources
 
 - **Methodology Documents**: `/Users/liantian/Library/Mobile Documents/iCloud~md~obsidian/Documents/Dev/Method/software_engineering_evolution_ai_era.md`
-- **GStack Fusion**: `/Users/liantian/workspace/osprojects/gstack-fusion`
+- **GStack**: https://github.com/garrytan/gstack
 - **Superpowers**: https://github.com/obra/superpowers
 - **Google Engineering**: GStack ETHOS.md
 
