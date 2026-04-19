@@ -55,7 +55,8 @@ class HealthResponse(BaseModel):
 
 
 # Global state
-_app_state = {
+from typing import Any
+_app_state: dict[str, Any] = {
     "start_time": None,
     "version": "0.8.0",
 }
@@ -100,8 +101,8 @@ async def health_check():
 
     return HealthResponse(
         status="healthy",
-        version=_app_state["version"],
-        uptime_seconds=time.time() - _app_state["start_time"],
+        version=str(_app_state["version"]),
+        uptime_seconds=time.time() - float(_app_state["start_time"] or 0),
         active_engines=len(status_data.get("engines", {})),
         loaded_plugins=0,
     )

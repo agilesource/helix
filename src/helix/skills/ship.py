@@ -37,7 +37,7 @@ class ShipMode(Enum):
 @dataclass
 class ShipConfig:
     """Ship configuration"""
-    mode: str = ShipMode.CREATE_PR
+    mode: ShipMode = ShipMode.CREATE_PR
     base_branch: str = "main"
     target_branch: str = ""
     title: str = ""

@@ -141,7 +141,7 @@ class LearnSkill(Skill):
     def _deduplicate_learnings(self) -> List[Learning]:
         """Deduplicate learnings by key, keeping latest"""
         learnings = self._load_learnings()
-        seen = {}
+        seen: dict[str, Learning] = {}
 
         for learning in learnings:
             key = f"{learning.key}|{learning.learn_type}"
@@ -216,9 +216,9 @@ class LearnSkill(Skill):
         """Show learnings statistics"""
         learnings = self._deduplicate_learnings()
 
-        by_type = {}
-        by_source = {}
-        by_project = {}
+        by_type: dict[str, int] = {}
+        by_source: dict[str, int] = {}
+        by_project: dict[str, int] = {}
 
         for learning in learnings:
             by_type[learning.learn_type] = by_type.get(learning.learn_type, 0) + 1
@@ -259,7 +259,7 @@ class LearnSkill(Skill):
         learnings = self._deduplicate_learnings()
 
         # Group by type
-        by_type = {}
+        by_type: dict[str, List[Learning]] = {}
         for learning in learnings:
             if learning.learn_type not in by_type:
                 by_type[learning.learn_type] = []

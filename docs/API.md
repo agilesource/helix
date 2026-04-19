@@ -209,4 +209,4 @@ docker-compose --profile dev up
 
 ---
 
-*Last updated: 2026-04-12*
+*Last updated: 2026-04-19*

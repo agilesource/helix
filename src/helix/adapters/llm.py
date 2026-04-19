@@ -65,7 +65,7 @@ class AnthropicAdapter(AIAdapter):
                 payload["system"] = str(request.context)
 
             # Configure SSL verification for custom endpoints (e.g., JD Cloud)
-            ssl_context = None if self.verify_ssl else False
+            ssl_context: bool = False if self.verify_ssl is False else True
             connector = aiohttp.TCPConnector(ssl=ssl_context)
 
             async with aiohttp.ClientSession(connector=connector) as session:

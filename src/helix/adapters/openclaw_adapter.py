@@ -198,7 +198,7 @@ class OpenClawWorkspace:
 
     def get_workspaces(self) -> List[WorkspaceInfo]:
         """Get all workspaces"""
-        workspaces = []
+        workspaces: list[WorkspaceInfo] = []
 
         if not os.path.exists(self.workspace_root):
             return workspaces
@@ -206,10 +206,11 @@ class OpenClawWorkspace:
         for name in os.listdir(self.workspace_root):
             path = os.path.join(self.workspace_root, name)
             if os.path.isdir(path) and not name.startswith("."):
+                is_active = bool(self._current_workspace and self._current_workspace.name == name)
                 workspaces.append(WorkspaceInfo(
                     path=path,
                     name=name,
-                    is_active=self._current_workspace and self._current_workspace.name == name,
+                    is_active=is_active,
                 ))
 
         return workspaces

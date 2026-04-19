@@ -1,0 +1,29 @@
+{
+  "name": "Helix CI",
+  "on": {
+    "push": {
+      "branches": [
+        "main",
+        "master"
+      ]
+    },
+    "pull_request": {
+      "branches": [
+        "main",
+        "master"
+      ]
+    }
+  },
+  "jobs": {
+    "helix-ci": {
+      "runs-on": "ubuntu-latest",
+      "steps": [
+        "uses: actions/checkout@v4",
+        "uses: actions/setup-python@v5",
+        "run: pip install -e .",
+        "run: helix audit --security --dependencies",
+        "run: helix gate --min-coverage 70"
+      ]
+    }
+  }
+}

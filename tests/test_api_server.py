@@ -74,11 +74,16 @@ class TestAPIEndpoints:
 
     def test_health_endpoint(self, client):
         """Test health check endpoint"""
+        # Set start_time before testing
+        import time
+        from helix.api import server as api_server
+        api_server._app_state["start_time"] = time.time()
+
         with patch('helix.engines.get_engine_manager') as mock_manager:
             mock_mgr = MagicMock()
             mock_mgr.get_status.return_value = {
                 "active": True,
-                "engines": 2
+                "engines": {"engine1": {}, "engine2": {}}
             }
             mock_manager.return_value = mock_mgr
 
@@ -94,7 +99,10 @@ class TestAPIEndpoints:
         response = client.get("/api/skills")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
+        # API returns {"skills": [...], "total": N} format
+        assert isinstance(data, dict)
+        assert "skills" in data
+        assert isinstance(data["skills"], list)
 
     def test_execute_skill_endpoint(self, client):
         """Test execute skill endpoint"""

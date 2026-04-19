@@ -1,0 +1,20 @@
+{
+  "stages": [
+    "gate",
+    "test",
+    "audit",
+    "deploy"
+  ],
+  "helix": {
+    "stage": "gate",
+    "script": [
+      "pip install -e .",
+      "helix audit --security --dependencies",
+      "helix gate --min-coverage 70"
+    ],
+    "only": [
+      "main",
+      "master"
+    ]
+  }
+}

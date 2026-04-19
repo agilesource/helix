@@ -6,13 +6,17 @@ Transform user requirements into structured specifications using LLM
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
 from enum import Enum
 
 from helix.skills.base import Skill, SkillResult, SkillConfig, SkillCategory, SkillStatus
 from helix.core.intent import Intent, IntentType
 from helix.core.context import HelixContext
-from helix.adapters.llm import get_llm_adapter, AnthropicAdapter, AIRequest
+
+if TYPE_CHECKING:
+    from helix.adapters.llm import AnthropicAdapter, AIRequest
+
+from helix.adapters.llm import get_llm_adapter, AIRequest
 
 
 class RequirementType(Enum):
@@ -142,8 +146,9 @@ class SpecSkill(Skill):
 
     def __init__(self, config: Optional[SkillConfig] = None):
         super().__init__(config)
-        self._llm_adapter = None
-        self._fallback_skill = None  # Fallback to rule-based if LLM unavailable
+        # Using Any to avoid complex type issues with optional adapter
+        self._llm_adapter: Any = None
+        self._fallback_skill: Any = None
 
     def _do_initialize(self) -> None:
         """Initialize and get LLM adapter"""
@@ -231,7 +236,7 @@ class SpecSkill(Skill):
         # Fallback to rule-based classification if LLM fails
         if self._fallback_skill:
             self._fallback_skill.initialize()
-            return self._fallback_skill._classify_requirement(requirement)
+            return self._fallback_skill._classify_requirement(requirement)  # type: ignore[no-any-return]
 
         return RequirementType.GENERAL
 
@@ -261,7 +266,7 @@ class SpecSkill(Skill):
         # Fallback to rule-based extraction if LLM fails
         if self._fallback_skill:
             self._fallback_skill.initialize()
-            return self._fallback_skill._extract_entities(requirement)
+            return self._fallback_skill._extract_entities(requirement)  # type: ignore[no-any-return]
 
         return ExtractedEntities()
 
@@ -307,7 +312,7 @@ class SpecSkill(Skill):
         )
 
         if response.success:
-            return response.content
+            return response.content  # type: ignore[no-any-return]
 
         # Fallback to template if LLM fails
         return self._fallback_generate(requirement, req_type, entities)
@@ -322,7 +327,7 @@ class SpecSkill(Skill):
         # Import and use fallback skill
         if self._fallback_skill:
             self._fallback_skill.initialize()  # Initialize the fallback skill
-            return self._fallback_skill._generate_spec(
+            return self._fallback_skill._generate_spec(  # type: ignore[no-any-return]
                 requirement, req_type.value, entities, {}
             )
 

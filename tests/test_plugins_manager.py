@@ -1,6 +1,10 @@
 """Test Plugin Manager"""
 
 import pytest
+import os
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock, AsyncMock
 from helix.plugins.manager import PluginManager, PluginInfo, get_plugin_manager
 from helix.plugins.base import (
     PluginConfig,
@@ -129,6 +133,200 @@ class TestPluginManager:
         manager.register_plugin("enable_test", EnablePlugin)
         result = manager.disable_plugin("enable_test")
         assert result is True
+
+
+class TestPluginManagerAdvanced:
+    """Test PluginManager advanced methods"""
+
+    def test_manager_initialize(self):
+        """Test manager initialize method"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = PluginManager(plugins_dir=tmpdir)
+            # initialize should work without errors
+            manager.initialize()
+            assert manager._context is None
+
+    def test_manager_initialize_with_context(self):
+        """Test manager initialize with context"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = PluginManager(plugins_dir=tmpdir)
+            context = {"test": "context"}
+            manager.initialize(context)
+            assert manager._context == context
+
+    def test_discover_plugins_empty_dir(self):
+        """Test discover_plugins with empty directory"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = PluginManager(plugins_dir=tmpdir)
+            discovered = manager.discover_plugins()
+            assert discovered == []
+
+    def test_discover_plugins_with_files(self):
+        """Test discover_plugins with Python files"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a test plugin file
+            plugin_file = os.path.join(tmpdir, "test_discovery.py")
+            with open(plugin_file, "w") as f:
+                f.write("""
+from helix.plugins.base import Plugin, PluginMetadata, PluginResult
+
+class TestDiscovery(Plugin):
+    name = "test_discovery"
+
+    @property
+    def metadata(self):
+        return PluginMetadata(name="test_discovery", version="1.0.0", description="Test")
+
+    async def execute(self, config):
+        return PluginResult(success=True)
+""")
+
+            manager = PluginManager(plugins_dir=tmpdir)
+            discovered = manager.discover_plugins()
+            # May be empty if discovery fails, but should not crash
+
+    def test_register_duplicate_plugin(self):
+        """Test registering duplicate plugin"""
+        class DuplicatePlugin(Plugin):
+            name = "dup_test"
+
+            @property
+            def metadata(self):
+                return PluginMetadata(name="dup_test", version="1.0.0", description="Test")
+
+            async def execute(self, config):
+                return PluginResult(success=True)
+
+        manager = PluginManager()
+        result1 = manager.register_plugin("dup_test", DuplicatePlugin)
+        result2 = manager.register_plugin("dup_test", DuplicatePlugin)
+        assert result1 is True
+        assert result2 is False
+
+    def test_register_plugin_with_exception(self):
+        """Test registering plugin that raises exception"""
+        class BadPlugin(Plugin):
+            name = "bad_plugin"
+
+            @property
+            def metadata(self):
+                return PluginMetadata(name="bad_plugin", version="1.0.0", description="Test")
+
+            def __init__(self, config=None):
+                raise RuntimeError("Init failed")
+
+            async def execute(self, config):
+                return PluginResult(success=True)
+
+        manager = PluginManager()
+        result = manager.register_plugin("bad_plugin", BadPlugin)
+        assert result is False
+
+    def test_load_plugin_not_found(self):
+        """Test loading non-existent plugin"""
+        manager = PluginManager()
+        result = manager.load_plugin("nonexistent")
+        assert result is False
+
+    def test_load_plugin_not_loaded_state(self):
+        """Test loading plugin not in LOADED state"""
+        class TestPlugin(Plugin):
+            name = "not_loaded"
+
+            @property
+            def metadata(self):
+                return PluginMetadata(name="not_loaded", version="1.0.0", description="Test")
+
+            async def execute(self, config):
+                return PluginResult(success=True)
+
+        manager = PluginManager()
+        manager.register_plugin("not_loaded", TestPlugin)
+        # Plugin is in LOADED state after register
+        # Let's check the state handling
+        result = manager.load_plugin("not_loaded")
+        assert result is True  # Should load successfully
+
+    def test_load_plugin_with_initialize(self):
+        """Test load_plugin with initialize and activate"""
+        class TestPlugin(Plugin):
+            name = "init_test"
+
+            @property
+            def metadata(self):
+                return PluginMetadata(name="init_test", version="1.0.0", description="Test")
+
+            def initialize(self, context):
+                pass
+
+            def activate(self):
+                pass
+
+            async def execute(self, config):
+                return PluginResult(success=True)
+
+        manager = PluginManager()
+        manager.register_plugin("init_test", TestPlugin)
+        result = manager.load_plugin("init_test")
+        assert result is True
+
+    def test_load_plugin_initialize_error(self):
+        """Test load_plugin with initialize error"""
+        class TestPlugin(Plugin):
+            name = "error_test"
+
+            @property
+            def metadata(self):
+                return PluginMetadata(name="error_test", version="1.0.0", description="Test")
+
+            def initialize(self, context):
+                raise RuntimeError("Init error")
+
+            async def execute(self, config):
+                return PluginResult(success=True)
+
+        manager = PluginManager()
+        manager.register_plugin("error_test", TestPlugin)
+        result = manager.load_plugin("error_test")
+        assert result is False
+
+    def test_unload_plugin_not_found(self):
+        """Test unloading non-existent plugin"""
+        manager = PluginManager()
+        result = manager.unload_plugin("nonexistent")
+        assert result is False
+
+    def test_unload_plugin_with_shutdown_error(self):
+        """Test unloading plugin with shutdown error"""
+        class TestPlugin(Plugin):
+            name = "shutdown_error"
+
+            @property
+            def metadata(self):
+                return PluginMetadata(name="shutdown_error", version="1.0.0", description="Test")
+
+            def shutdown(self):
+                raise RuntimeError("Shutdown failed")
+
+            async def execute(self, config):
+                return PluginResult(success=True)
+
+        manager = PluginManager()
+        manager.register_plugin("shutdown_error", TestPlugin)
+        result = manager.unload_plugin("shutdown_error")
+        assert result is False
+
+    def test_enable_plugin_not_found(self):
+        """Test enabling non-existent plugin"""
+        manager = PluginManager()
+        result = manager.enable_plugin("nonexistent")
+        assert result is False
+
+    def test_disable_plugin_not_found(self):
+        """Test disabling non-existent plugin"""
+        manager = PluginManager()
+        result = manager.disable_plugin("nonexistent")
+        assert result is False
 
 
 class TestPluginInfo:

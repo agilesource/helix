@@ -14,6 +14,7 @@ from enum import Enum
 
 from helix.core.context import HelixContext
 from helix.core.intent import Intent, IntentType
+from helix.core.intent_classifier import IntentClassifier
 from helix.skills.base import Skill, SkillResult
 
 
@@ -37,6 +38,7 @@ class HelixConfig:
     auto_confirm: bool = False
     verbose: bool = False
     log_level: str = "INFO"
+    timeout_seconds: int = 300  # Default 5 minute timeout
 
     # Adapter configuration
     adapters: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -53,11 +55,28 @@ class HelixOrchestrator:
     - Context management
     """
 
+    # Intent type to skill name mapping
+    INTENT_TO_SKILL: Dict[IntentType, str] = {
+        IntentType.SPEC: "spec",
+        IntentType.BUILD: "build",
+        IntentType.VERIFY: "verify",
+        IntentType.SHIP: "ship",
+        IntentType.REVIEW: "review",
+        IntentType.TEST: "test",
+        IntentType.AUDIT: "audit",
+        IntentType.GATE: "gate",
+        IntentType.BROWSE: "browse",
+        IntentType.DESIGN: "design",
+        IntentType.LEARN: "learn",
+        IntentType.CHECKPOINT: "checkpoint",
+    }
+
     def __init__(self, config: Optional[HelixConfig] = None):
         self.config = config or HelixConfig()
         self.context = HelixContext()
         self._skills: Dict[str, Skill] = {}
         self._adapters: Dict[ExecutionMode, Any] = {}
+        self._intent_classifier = IntentClassifier()
 
     def register_skill(self, skill: Skill) -> None:
         """Register a skill"""
@@ -72,109 +91,49 @@ class HelixOrchestrator:
         Main entry point: Process user input
 
         Flow:
-        1. Parse intent
+        1. Parse intent (using IntentClassifier)
         2. Route to skill
         3. Execute skill
         4. Return result
         """
-        # Step 1: Intent recognition
-        intent = self._parse_intent(user_input)
+        try:
+            # Step 1: Intent recognition with classifier
+            intent = await self._parse_intent(user_input)
 
-        # Step 2: Skill routing
-        skill = self._route_skill(intent)
+            # Step 2: Skill routing
+            skill = self._route_skill(intent)
 
-        if not skill:
+            if not skill:
+                return SkillResult(
+                    success=False,
+                    message=f"No skill available for intent: {intent.type.value}",
+                    skill_name="orchestrator"
+                )
+
+            # Step 3: Execute skill
+            result = await skill.execute(intent, self.context)
+
+            # Step 4: Update context
+            self.context.add_interaction(intent, result)
+
+            return result
+
+        except Exception as e:
             return SkillResult(
                 success=False,
-                message=f"Cannot handle intent: {intent.type.value}",
-                data={"intent": intent}
+                message=f"Orchestrator error: {str(e)}",
+                skill_name="orchestrator"
             )
 
-        # Step 3: Execute skill
-        result = await skill.execute(intent, self.context)
-
-        # Step 4: Update context
-        self.context.add_interaction(intent, result)
-
-        return result
-
-    def _parse_intent(self, user_input: str) -> Intent:
-        """Parse user intent"""
-        # TODO: Implement smarter intent recognition
-        # For now, use simple keyword matching
-
-        input_lower = user_input.lower()
-
-        # Specification requirements
-        if any(kw in input_lower for kw in ["want", "need", "build", "feature", "requirement", "spec"]):
-            return Intent(
-                type=IntentType.SPEC,
-                raw_input=user_input,
-                confidence=0.9
-            )
-
-        # Build requirements
-        if any(kw in input_lower for kw in ["implement", "develop", "write code", "build", "create"]):
-            return Intent(
-                type=IntentType.BUILD,
-                raw_input=user_input,
-                confidence=0.8
-            )
-
-        # Verification requirements
-        if any(kw in input_lower for kw in ["test", "verify", "check", "verify", "test"]):
-            return Intent(
-                type=IntentType.VERIFY,
-                raw_input=user_input,
-                confidence=0.9
-            )
-
-        # Ship/Deploy requirements
-        if any(kw in input_lower for kw in ["ship", "deploy", "release", "publish"]):
-            return Intent(
-                type=IntentType.SHIP,
-                raw_input=user_input,
-                confidence=0.9
-            )
-
-        # Review requirements
-        if any(kw in input_lower for kw in ["review", "check code", "audit"]):
-            return Intent(
-                type=IntentType.REVIEW,
-                raw_input=user_input,
-                confidence=0.9
-            )
-
-        # Default: general conversation
-        return Intent(
-            type=IntentType.GENERAL,
-            raw_input=user_input,
-            confidence=0.5
-        )
+    async def _parse_intent(self, user_input: str) -> Intent:
+        """Parse user intent using IntentClassifier"""
+        return await self._intent_classifier.classify(user_input, self.context)
 
     def _route_skill(self, intent: Intent) -> Optional[Skill]:
         """Route intent to skill"""
-
-        # Intent type to skill name mapping
-        mapping = {
-            IntentType.SPEC: "spec",
-            IntentType.BUILD: "build",
-            IntentType.VERIFY: "verify",
-            IntentType.SHIP: "ship",
-            IntentType.REVIEW: "review",
-            IntentType.TEST: "test",
-            IntentType.AUDIT: "audit",
-            IntentType.GATE: "gate",
-            IntentType.BROWSE: "browse",
-            IntentType.DESIGN: "design",
-            IntentType.LEARN: "learn",
-            IntentType.CHECKPOINT: "checkpoint",
-        }
-
-        skill_name = mapping.get(intent.type)
+        skill_name = self.INTENT_TO_SKILL.get(intent.type)
         if skill_name and skill_name in self._skills:
             return self._skills[skill_name]
-
         return None
 
     def get_available_skills(self) -> List[str]:
@@ -184,3 +143,11 @@ class HelixOrchestrator:
     def get_context(self) -> HelixContext:
         """Get current context"""
         return self.context
+
+    def has_skill(self, skill_name: str) -> bool:
+        """Check if a skill is registered"""
+        return skill_name in self._skills
+
+    def get_skill(self, skill_name: str) -> Optional[Skill]:
+        """Get a skill by name"""
+        return self._skills.get(skill_name)

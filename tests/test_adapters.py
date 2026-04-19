@@ -184,6 +184,33 @@ class TestAnthropicAdapterExecute:
             __builtins__["__import__"] = original_import
 
 
+class TestAnthropicAdapterBaseUrl:
+    """Test AnthropicAdapter base URL and SSL settings"""
+
+    def test_default_base_url(self):
+        """Test default base URL"""
+        # Clear custom base URL env var first
+        os.environ.pop("ANTHROPIC_BASE_URL", None)
+        adapter = AnthropicAdapter(api_key="test")
+        assert adapter.base_url == "https://api.anthropic.com/v1"
+        assert adapter.verify_ssl is True
+
+    def test_custom_base_url(self):
+        """Test custom base URL (e.g., JD Cloud)"""
+        os.environ["ANTHROPIC_BASE_URL"] = "https://jdcloud.example.com/v1"
+        adapter = AnthropicAdapter(api_key="test")
+        assert adapter.base_url == "https://jdcloud.example.com/v1"
+        assert adapter.verify_ssl is False
+        del os.environ["ANTHROPIC_BASE_URL"]
+
+    def test_supported_models(self):
+        """Test supported models list"""
+        adapter = AnthropicAdapter(api_key="test")
+        assert "claude-sonnet-4-20250514" in adapter.supported_models
+        assert "claude-sonnet-3-5-20241022" in adapter.supported_models
+        assert "claude-haiku-3-20240307" in adapter.supported_models
+
+
 class TestOpenAIAdapterExecute:
     """Test OpenAIAdapter async execution"""
 

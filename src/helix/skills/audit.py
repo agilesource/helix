@@ -320,7 +320,7 @@ class AuditSkill(Skill):
 
     async def _audit_dependencies(self, scan_path: str) -> List[AuditFinding]:
         """Run dependency audit"""
-        findings = []
+        findings: list[AuditFinding] = []
         path = Path(scan_path)
 
         # Check for requirements.txt or pyproject.toml

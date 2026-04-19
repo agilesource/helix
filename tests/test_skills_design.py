@@ -1,6 +1,9 @@
 """Test Design Skill"""
 
 import pytest
+import json
+import tempfile
+from pathlib import Path
 from unittest.mock import patch, Mock, AsyncMock
 from helix.skills.design import DesignSkill, DesignSystem
 from helix.skills.base import SkillConfig, SkillCategory, SkillStatus
@@ -87,34 +90,136 @@ class TestDesignSkill:
         assert skill.design_system is not None
         assert isinstance(skill.design_system, DesignSystem)
 
+
+class TestDesignSkillExecute:
+    """Test DesignSkill execute method"""
+
     @pytest.mark.asyncio
-    async def test_design_consultation(self, skill):
-        """Test design consultation command"""
+    async def test_execute_with_brand(self):
+        """Test execute with brand parameter"""
+        skill = DesignSkill()
+
         intent = Intent(
             type=IntentType.DESIGN,
             confidence=1.0,
-            raw_input="design system",
-            parameters={"command": "consultation", "query": "color palette"}
+            raw_input="helix design --brand MyBrand",
+            parameters={"brand": "MyBrand", "template": "default"}
         )
 
-        # Just verify the skill can execute without error
-        # (actual LLM calls may fail, but should handle gracefully)
-        try:
-            result = await skill.execute(intent, None)
-        except Exception:
-            pass  # Accept any exception for now
+        result = await skill.execute(intent, None)
+        assert result.success is True
+        assert skill.design_system.brand_name == "MyBrand"
 
     @pytest.mark.asyncio
-    async def test_design_shotgun(self, skill):
-        """Test design shotgun command"""
+    async def test_execute_with_color_scheme(self):
+        """Test execute with color scheme"""
+        skill = DesignSkill()
+
         intent = Intent(
             type=IntentType.DESIGN,
             confidence=1.0,
-            raw_input="explore designs",
-            parameters={"command": "shotgun", "query": "button styles"}
+            raw_input="helix design --color_scheme ocean",
+            parameters={"color_scheme": "ocean"}
         )
 
+        result = await skill.execute(intent, None)
+        assert result.success is True
+
+    @pytest.mark.asyncio
+    async def test_execute_with_output(self):
+        """Test execute with output file"""
+        skill = DesignSkill()
+
+        intent = Intent(
+            type=IntentType.DESIGN,
+            confidence=1.0,
+            raw_input="helix design --output custom.md",
+            parameters={"output": "custom.md"}
+        )
+
+        result = await skill.execute(intent, None)
+        assert result.success is True
+
+
+class TestDesignSkillMethods:
+    """Test DesignSkill internal methods"""
+
+    @pytest.mark.asyncio
+    async def test_load_from_spec(self):
+        """Test _load_from_spec method"""
+        skill = DesignSkill()
+
+        # Create a temporary spec file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({
+                "design": {
+                    "brand": "Spec Brand",
+                    "colors": {
+                        "primary": "#123456"
+                    }
+                }
+            }, f)
+            spec_file = f.name
+
         try:
-            result = await skill.execute(intent, None)
-        except Exception:
-            pass  # Accept any exception for now
+            skill._load_from_spec(spec_file)
+            assert skill.design_system.brand_name == "Spec Brand"
+        finally:
+            Path(spec_file).unlink()
+
+    @pytest.mark.asyncio
+    async def test_apply_color_scheme(self):
+        """Test _apply_color_scheme method"""
+        skill = DesignSkill()
+
+        skill._apply_color_scheme("ocean")
+        # Should apply ocean color scheme
+
+        skill._apply_color_scheme("forest")
+        # Should apply forest color scheme
+
+        skill._apply_color_scheme("sunset")
+        # Should apply sunset color scheme
+
+    def test_generate_design_system(self):
+        """Test _generate_design_system method"""
+        skill = DesignSkill()
+
+        result = skill._generate_design_system("default", "test.md")
+        assert result["success"] is True
+        assert "data" in result
+
+
+class TestDesignSkillEdgeCases:
+    """Test DesignSkill edge cases"""
+
+    @pytest.mark.asyncio
+    async def test_execute_invalid_color_scheme(self):
+        """Test execute with invalid color scheme"""
+        skill = DesignSkill()
+
+        intent = Intent(
+            type=IntentType.DESIGN,
+            confidence=1.0,
+            raw_input="helix design --color_scheme invalid",
+            parameters={"color_scheme": "invalid_scheme_xyz"}
+        )
+
+        result = await skill.execute(intent, None)
+        # Should handle gracefully
+
+    @pytest.mark.asyncio
+    async def test_execute_error_handling(self):
+        """Test execute error handling"""
+        skill = DesignSkill()
+
+        # Force an error by passing invalid params
+        intent = Intent(
+            type=IntentType.DESIGN,
+            confidence=1.0,
+            raw_input="helix design",
+            parameters={"template": "nonexistent_template"}
+        )
+
+        result = await skill.execute(intent, None)
+        assert result is not None

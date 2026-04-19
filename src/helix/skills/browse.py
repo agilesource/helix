@@ -50,8 +50,8 @@ class BrowseSkill(Skill):
     def __init__(self, config: Optional[SkillConfig] = None):
         super().__init__(config)
         self.browse_config = BrowseConfig()
-        self._playwright_available = None
-        self._selenium_available = None
+        self._playwright_available: Optional[bool] = None
+        self._selenium_available: Optional[bool] = None
 
     def _do_initialize(self) -> None:
         """Initialize browse skill"""

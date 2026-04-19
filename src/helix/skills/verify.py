@@ -83,7 +83,7 @@ class StaticChecker:
     async def run(self) -> CheckResult:
         """Run static checks"""
         start = datetime.now()
-        issues = []
+        issues: list[str] = []
         passed = True
 
         # Check if ruff is available
@@ -142,7 +142,7 @@ class TestRunner:
     async def run(self) -> CheckResult:
         """Run tests"""
         start = datetime.now()
-        issues = []
+        issues: list[str] = []
         passed = True
         test_details = {}
 
@@ -204,7 +204,7 @@ class AcceptanceChecker:
     async def run(self) -> CheckResult:
         """Check acceptance criteria"""
         start = datetime.now()
-        issues = []
+        issues: list[str] = []
 
         # Find SPEC.md
         spec_files = list(self.project_path.glob("SPEC.md"))

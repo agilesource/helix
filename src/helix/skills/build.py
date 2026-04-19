@@ -115,7 +115,7 @@ class SpecParser:
 
         lines = spec_content.split('\n')
         in_section = None
-        section_content = []
+        section_content: list[str] = []
 
         for line in lines:
             if line.startswith('## '):
@@ -388,7 +388,7 @@ class LLMCodeGenerator:
             self._llm_adapter = get_llm_adapter()
         return self._llm_adapter
 
-    async def generate(self, spec_content: str) -> List[CodeFile]:
+    async def generate(self, spec_content: str) -> Optional[List[CodeFile]]:
         """Generate code using LLM"""
         adapter = self._get_llm_adapter()
 
@@ -417,7 +417,7 @@ class LLMCodeGenerator:
         """Parse LLM output into code files"""
         files = []
         current_filename = None
-        current_content = []
+        current_content: list[str] = []
 
         for line in content.split('\n'):
             # Check for file marker
@@ -503,7 +503,7 @@ class BuildSkill(Skill):
                 confidence=0.9,
                 parameters={}
             )
-            spec_result = await self._spec_skill.execute(spec_intent, context)
+            spec_result = await self._spec_skill.execute(spec_intent, context)  # type: ignore[attr-defined]
             if spec_result.success:
                 spec_content = spec_result.artifacts.get('spec', '') if spec_result.artifacts else spec_result.data.get('spec_content', '')
                 self.console.print("[dim]Specification generated.[/dim]\n")

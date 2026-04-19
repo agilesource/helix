@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.0] - 2026-04-19
+
+### Added
+- IntentClassifier - Rule-based intent classification with context enhancement
+- HelixOrchestrator v2 - Enhanced orchestration with IntentClassifier integration
+- Type annotations - Full mypy type coverage for core/, skills/, adapters/
+- Test coverage - 93% for core/, 62% for skills/
+
+### Changed
+- Skill routing via INTENT_TO_SKILL mapping
+- HelixConfig with timeout_seconds support
+- Improved error handling and confidence calculation
+
+### Architecture
+- Four-layer architecture: Infrastructure → Execution Engine → Quality Assurance → Meta-Methodology
+- AI agent-agnostic design with pluggable adapters
+
+---
+
 ## [1.0.0-beta.1] - 2026-04-11
 
 ### Added

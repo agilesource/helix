@@ -189,7 +189,7 @@ class AnthropicAdapter(AIAdapter):
     def __init__(self, config: Optional[AnthropicConfig] = None):
         super().__init__()
         self.config = config or AnthropicConfig()
-        self._api_key = None
+        self._api_key: Optional[str] = None
 
     async def initialize(self) -> None:
         """Initialize the adapter"""

@@ -262,7 +262,7 @@ class QASkill(Skill):
                         try:
                             duration = float(parts[0].rstrip('s'))
                             test_name = ' '.join(parts[1:])
-                            report.slow_tests.append({"name": test_name, "duration": duration})
+                            report.slow_tests.append({"name": test_name, "duration": duration})  # type: ignore[dict-item]
                         except ValueError:
                             pass
 
@@ -324,15 +324,15 @@ class QASkill(Skill):
 
         if report.failed_tests:
             lines.append("Failed Tests:")
-            for test in report.failed_tests[:5]:
-                lines.append(f"  [red]✗[/red] {test['name']}")
-                lines.append(f"      {test['error'][:60]}...")
+            for failed_test in report.failed_tests[:5]:
+                lines.append(f"  [red]✗[/red] {failed_test['name']}")
+                lines.append(f"      {failed_test['error'][:60]}...")
             lines.append("")
 
         if report.slow_tests:
             lines.append("Slow Tests:")
-            for test in report.slow_tests[:3]:
-                lines.append(f"  [yellow]⏱[/yellow] {test['name']} ({test['duration']:.2f}s)")
+            for slow_test in report.slow_tests[:3]:
+                lines.append(f"  [yellow]⏱[/yellow] {slow_test['name']} ({slow_test['duration']:.2f}s)")
             lines.append("")
 
         # Status

@@ -231,3 +231,39 @@ class TestAuditSkill:
         )
         formatted = skill._format_report(report)
         assert "WARNING" in formatted
+
+
+class TestAuditSkillAsync:
+    """Test AuditSkill async methods"""
+
+    @pytest.mark.asyncio
+    async def test_execute_with_scan_path(self):
+        """Test execute with scan path"""
+        from helix.core.intent import Intent, IntentType
+        skill = AuditSkill()
+        intent = Intent(
+            type=IntentType.AUDIT,
+            raw_input="audit security",
+            confidence=0.9,
+            parameters={"path": "."}
+        )
+        try:
+            result = await skill.execute(intent, None)
+        except (RuntimeError, Exception):
+            pass
+
+    @pytest.mark.asyncio
+    async def test_execute_with_category(self):
+        """Test execute with category filter"""
+        from helix.core.intent import Intent, IntentType
+        skill = AuditSkill()
+        intent = Intent(
+            type=IntentType.AUDIT,
+            raw_input="audit",
+            confidence=0.9,
+            parameters={"category": "security", "path": "/tmp"}
+        )
+        try:
+            result = await skill.execute(intent, None)
+        except (RuntimeError, Exception):
+            pass

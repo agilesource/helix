@@ -236,6 +236,7 @@ class SpecSkillFallback(Skill):
         template = self._templates.get(req_type)
         if not template:
             template = self._templates.get(RequirementType.GENERAL)
+        assert template is not None
 
         function_name = self._infer_function_name(user_input)
         domain = entities.domain or "general"

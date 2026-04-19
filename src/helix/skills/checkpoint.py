@@ -57,7 +57,7 @@ class CheckpointSkill(Skill):
 
     def __init__(self, config: Optional[SkillConfig] = None):
         super().__init__(config)
-        self.checkpoint_dir = None
+        self.checkpoint_dir: Optional[Path] = None
         self._initialize_storage()
 
     def _do_initialize(self) -> None:
@@ -180,6 +180,7 @@ class CheckpointSkill(Skill):
         )
 
         # Save to file
+        assert self.checkpoint_dir is not None
         checkpoint_file = self.checkpoint_dir / f"{checkpoint.id}.json"
         checkpoint_file.write_text(json.dumps(asdict(checkpoint), indent=2))
 

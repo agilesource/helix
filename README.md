@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://www.python.org)
 [![Status](https://img.shields.io/badge/Status-Stable-green.svg)](#)
-[![Test Coverage](https://img.shields.io/badge/Coverage-23%25-yellow.svg)](#)
+[![Test Coverage](https://img.shields.io/badge/Coverage-62%25-yellow.svg)](#)
 
 ## Core Philosophy
 
