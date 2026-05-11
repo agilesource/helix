@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-05-11
+
+### Added
+- **GStack-Fusion v0.7.0 Integration**: 27 skills migrated from GStack-Fusion
+- **10 new skills** from agent-skills (5) and mattpocock/skills (5)
+- Skills reorganized into 8 SDLC categories (planning, architecture, implementation, quality, debugging, process, deploy, security)
+
+### Changed
+- Skills migrated from `skill/` to `skills/` with SDLC category structure
+- Helix unique skills (build, verify, gate, browse, learn, checkpoint) preserved
+- bin/ and lib/ migrated from GStack-Fusion
+- docs/ populated from GStack-Fusion
+
+### Preserved
+- 6 Helix-unique skills: helix-build, helix-verify, helix-gate, helix-browse, helix-learn, helix-checkpoint
+- Original `skill/` directory backed up to `skill.bak/`
+
+### Stats
+- Total skills: 33 (up from 12)
+- Sources: GStack-Fusion (27) + Helix (6)
+
+---
+
 ## [1.0.0] - 2026-04-19
 
 ### Added

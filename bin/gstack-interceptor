@@ -1,0 +1,98 @@
+#!/bin/bash
+# gstack-interceptor - 技能拦截器
+# 功能: 拦截非技能调用，引导用户使用正确技能
+
+# 使用方式: 在每次用户输入后调用
+# 示例: source <(gstack-interceptor check "用户输入内容")
+
+INTERCEPTOR_LOG="$HOME/.gstack/analytics/interceptor.log"
+
+# 关键词到技能的映射
+declare -A KEYWORD_SKILLS=(
+    ["review"]="/review"
+    ["code review"]="/review"
+    ["检查代码"]="/review"
+    ["测试"]="/qa"
+    ["qa"]="/qa"
+    ["bug"]="/investigate"
+    ["调试"]="/investigate"
+    ["调查"]="/investigate"
+    ["发布"]="/ship"
+    ["ship"]="/ship"
+    ["部署"]="/ship"
+    ["安全"]="/cso"
+    ["security"]="/cso"
+    ["审计"]="/cso"
+    ["设计"]="/design-consultation"
+    ["design"]="/design-consultation"
+    ["头脑风暴"]="/office-hours"
+    ["brainstorm"]="/office-hours"
+    ["计划"]="/plan-ceo-review"
+    ["plan"]="/plan-ceo-review"
+    ["架构"]="/plan-eng-review"
+    ["retro"]="/retro"
+    ["回顾"]="/retro"
+)
+
+# 检查用户输入是否应该触发技能
+intercept() {
+    local input="$1"
+    local suggestion=""
+
+    # 遍历关键词映射
+    for keyword in "${!KEYWORD_SKILLS[@]}"; do
+        if echo "$input" | grep -qi "$keyword"; then
+            suggestion="${KEYWORD_SKILLS[$keyword]}"
+            break
+        fi
+    done
+
+    if [ -n "$suggestion" ]; then
+        echo "建议使用技能: $suggestion"
+        echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) INPUT: $input SUGGESTION: $suggestion" >> "$INTERCEPTOR_LOG"
+        echo "$suggestion"
+        return 0
+    fi
+
+    return 1
+}
+
+# 记录未匹配到的输入 (用于学习)
+log_unmatched() {
+    local input="$1"
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) UNMATCHED: $input" >> "$INTERCEPTOR_LOG"
+}
+
+# 显示统计
+stats() {
+    if [ -f "$INTERCEPTOR_LOG" ]; then
+        echo "=== Interceptor Stats ==="
+        echo "总记录数: $(wc -l < "$INTERCEPTOR_LOG")"
+        echo ""
+        echo "按技能统计:"
+        grep "SUGGESTION:" "$INTERCEPTOR_LOG" | sed 's/.*SUGGESTION: //' | sort | uniq -c | sort -rn
+    else
+        echo "暂无拦截记录"
+    fi
+}
+
+# 主命令处理
+case "${1:-}" in
+    check)
+        intercept "$2"
+        ;;
+    log)
+        log_unmatched "$2"
+        ;;
+    stats)
+        stats
+        ;;
+    *)
+        echo "gstack-interceptor - 技能拦截器"
+        echo ""
+        echo "用法:"
+        echo "  source <(gstack-interceptor check \"用户输入\")  # 检查是否需要技能"
+        echo "  gstack-interceptor log \"用户输入\"              # 记录未匹配输入"
+        echo "  gstack-interceptor stats                       # 显示统计"
+        ;;
+esac
