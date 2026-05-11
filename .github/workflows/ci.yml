@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, v1.x]
   pull_request:
@@ -9,11 +10,13 @@ on:
 jobs:
   test:
     name: Test Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    runs-on:
+  workflow_dispatch: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version:
+  workflow_dispatch: ['3.9', '3.10', '3.11', '3.12']
     
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +24,8 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version:
+  workflow_dispatch: ${{ matrix.python-version }}
           cache: 'pip'
       
       - name: Install dependencies
@@ -36,14 +40,16 @@ jobs:
   
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on:
+  workflow_dispatch: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version:
+  workflow_dispatch: '3.11'
           cache: 'pip'
       
       - name: Install linters
@@ -65,7 +71,8 @@ jobs:
 
   skills-validate:
     name: Validate Skills
-    runs-on: ubuntu-latest
+    runs-on:
+  workflow_dispatch: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -103,7 +110,8 @@ jobs:
 
   build:
     name: Build Package
-    runs-on: ubuntu-latest
+    runs-on:
+  workflow_dispatch: ubuntu-latest
     needs: [test, lint, skills-validate]
     steps:
       - uses: actions/checkout@v4
@@ -111,7 +119,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version:
+  workflow_dispatch: '3.11'
       
       - name: Install build tools
         run: |
