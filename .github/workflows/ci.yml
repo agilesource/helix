@@ -28,19 +28,28 @@ jobs:
       
       - name: Validate SKILL.md format
         run: |
-          # Check frontmatter exists
+          # Check for YAML frontmatter OR Markdown headers
           invalid=0
+          valid=0
           for f in $(find skills/ -name "SKILL.md" 2>/dev/null); do
-            if ! head -3 "$f" 2>/dev/null | grep -q "^---"; then
-              echo "⚠️ $f missing frontmatter"
+            first_line=$(head -1 "$f" 2>/dev/null)
+            if [ "$first_line" = "---" ]; then
+              # YAML frontmatter format
+              valid=$((valid + 1))
+            elif echo "$first_line" | grep -q "^# "; then
+              # Markdown header format (agent personas)
+              valid=$((valid + 1))
+            else
+              echo "⚠️ Unknown format: $f"
               invalid=$((invalid + 1))
             fi
           done
+          echo "Validated: $valid skills, Invalid: $invalid"
           if [ "$invalid" -gt 0 ]; then
-            echo "❌ Found $invalid files without valid frontmatter"
+            echo "❌ Found $invalid files without valid format"
             exit 1
           fi
-          echo "✅ All SKILL.md files have valid frontmatter"
+          echo "✅ All SKILL.md files have valid format (YAML frontmatter or Markdown)"
       
       - name: Check category structure
         run: |
@@ -50,7 +59,7 @@ jobs:
             echo "⚠️ Expected at least 6 categories"
             exit 1
           fi
-          echo "✅ Category structure valid"
+          echo "✅ Category structure valid: $categories categories"
 
   lint:
     name: Lint
@@ -106,9 +115,6 @@ jobs:
           if [ -f "VERSION" ]; then
             ver=$(cat VERSION 2>/dev/null)
             echo "VERSION: $ver"
-          fi
-          if grep -q "v[0-9]" README.md 2>/dev/null; then
-            echo "✅ Version found in README"
           fi
 
   build:
