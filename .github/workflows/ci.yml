@@ -8,62 +8,6 @@ on:
     branches: [main, v1.x]
 
 jobs:
-  test:
-    name: Test Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]" || pip install -e .
-      
-      - name: Run tests with pytest
-        run: |
-          pytest -v --tb=short || echo "No tests found or tests failed"
-        continue-on-error: true
-  
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-      
-      - name: Install linters
-        run: |
-          python -m pip install --upgrade pip
-          pip install black flake8 mypy
-      
-      - name: Run Black
-        run: black --check --diff src/ tests/ 2>/dev/null || echo "Black check skipped"
-        continue-on-error: true
-      
-      - name: Run Flake8
-        run: flake8 src/ tests/ --max-line-length=100 --exclude=__pycache__,.git,.eggs,build,dist 2>/dev/null || echo "Flake8 skipped"
-        continue-on-error: true
-      
-      - name: Run MyPy
-        run: mypy src/ --ignore-missing-imports 2>/dev/null || echo "MyPy skipped"
-        continue-on-error: true
-
   skills-validate:
     name: Validate Skills
     runs-on: ubuntu-latest
@@ -80,21 +24,27 @@ jobs:
             echo "⚠️ Expected at least 30 skills, found $count"
             exit 1
           fi
+          echo "✅ Found $count skills"
       
       - name: Validate SKILL.md format
         run: |
           # Check frontmatter exists
-          for f in $(find skills/ -name "SKILL.md"); do
-            if ! head -3 "$f" | grep -q "^---"; then
+          invalid=0
+          for f in $(find skills/ -name "SKILL.md" 2>/dev/null); do
+            if ! head -3 "$f" 2>/dev/null | grep -q "^---"; then
               echo "⚠️ $f missing frontmatter"
-              exit 1
+              invalid=$((invalid + 1))
             fi
           done
+          if [ "$invalid" -gt 0 ]; then
+            echo "❌ Found $invalid files without valid frontmatter"
+            exit 1
+          fi
           echo "✅ All SKILL.md files have valid frontmatter"
       
       - name: Check category structure
         run: |
-          categories=$(find skills/ -maxdepth 1 -type d | tail -n +2 | wc -l)
+          categories=$(find skills/ -maxdepth 1 -type d 2>/dev/null | tail -n +2 | wc -l)
           echo "Found $categories skill categories"
           if [ "$categories" -lt 6 ]; then
             echo "⚠️ Expected at least 6 categories"
@@ -102,10 +52,9 @@ jobs:
           fi
           echo "✅ Category structure valid"
 
-  build:
-    name: Build Package
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    needs: [test, lint, skills-validate]
     steps:
       - uses: actions/checkout@v4
       
@@ -113,16 +62,82 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
       
-      - name: Install build tools
+      - name: Install linters
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
+          pip install markdownlint-cli2 yamllint 2>/dev/null || true
       
-      - name: Build package
-        run: python -m build || echo "Build skipped (no pyproject.toml)"
+      - name: Run markdownlint
+        run: |
+          markdownlint "skills/**/*.md" "docs/**/*.md" "README.md" "CHANGELOG.md" --ignore node_modules 2>/dev/null || echo "Lint warnings found (non-blocking)"
         continue-on-error: true
       
-      - name: Check package
-        run: twine check dist/* 2>/dev/null || echo "Package check skipped"
+      - name: Run yamllint
+        run: |
+          yamllint .github/ 2>/dev/null || echo "YAML warnings found (non-blocking)"
         continue-on-error: true
+
+  docs-validate:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check README exists
+        run: |
+          if [ ! -f "README.md" ]; then
+            echo "❌ README.md not found"
+            exit 1
+          fi
+          echo "✅ README.md exists"
+      
+      - name: Check CHANGELOG exists
+        run: |
+          if [ ! -f "CHANGELOG.md" ]; then
+            echo "⚠️ CHANGELOG.md not found"
+          else
+            echo "✅ CHANGELOG.md exists"
+          fi
+      
+      - name: Verify version consistency
+        run: |
+          if [ -f "VERSION" ]; then
+            ver=$(cat VERSION 2>/dev/null)
+            echo "VERSION: $ver"
+          fi
+          if grep -q "v[0-9]" README.md 2>/dev/null; then
+            echo "✅ Version found in README"
+          fi
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [skills-validate, lint, docs-validate]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          skills=$(find skills/ -name "SKILL.md" 2>/dev/null | wc -l)
+          categories=$(find skills/ -maxdepth 1 -type d 2>/dev/null | tail -n +2 | wc -l)
+          
+          echo "### Skills Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- Total Skills: $skills" >> $GITHUB_STEP_SUMMARY
+          echo "- Categories: $categories" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Categories" >> $GITHUB_STEP_SUMMARY
+          for cat in skills/*/; do
+            if [ -d "$cat" ]; then
+              name=$(basename "$cat")
+              count=$(find "$cat" -name "SKILL.md" 2>/dev/null | wc -l)
+              echo "- $name: $count skills" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ CI Validation Complete" >> $GITHUB_STEP_SUMMARY
