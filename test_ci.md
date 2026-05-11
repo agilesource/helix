@@ -1,1 +1,0 @@
-# Helix AI Engineering
